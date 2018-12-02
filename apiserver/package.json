@@ -1,0 +1,28 @@
+{
+  "name": "tracking-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "mocha"
+  },
+  "author": "Sanghyeok Lee <shlee322@elab.kr>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "html-entities": "^1.2.1",
+    "iconv": "^2.3.0",
+    "jsdom": "^13.0.0",
+    "request": "^2.85.0",
+    "ssl-root-cas": "^1.2.5",
+    "tough-cookie": "^2.3.4"
+  },
+  "devDependencies": {
+    "eslint": "^5.9.0",
+    "mocha": "^5.2.0"
+  }
+}

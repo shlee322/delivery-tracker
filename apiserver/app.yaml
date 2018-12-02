@@ -1,0 +1,3 @@
+runtime: nodejs10
+env_variables:
+  NODE_TLS_REJECT_UNAUTHORIZED: '0'
