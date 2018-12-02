@@ -36,13 +36,14 @@ jobs:
   - stage: deploy client
     if: branch = master
     env:
-      secure: dxUXq6e049jZ+cDBLz/+agklQ2V2CEAUHYbgD6tOpe1tjI/7uerRAuTHzv1M9k10QKSA8Zm2HPp3+G5DhmY5jM6RBhghdDcTBPYTTr/bmWI07gNSaHJ3P3TI1WHX18g6/xAqkoG8ARsNEdktlgSorpC1OQhEtUiheM7VSIPgvgydtuU+cSgcKTcg1EW5iVHpSXowo8r+jlCPRNvdPWgN1DHFfQgTst6Tf/rEkkntfzGiLGzwroMgq1VvZLHAUiJm5KsvEPbJZRBft0t33wYSviHBy+/gq+y13FGwWUTJKpOuYW73ONMu+trR/W22Cpkl9V64+LFYV6M1bVaNwmqSqTPF8+4205G8Z26dM90N07TG7qh3Yzp/MAYINoGzw4IpGwwEYz18UhdoMEJNd6xYvTnwuqA4fWhpvclNLeMt5SsLumxEc8w/2i/paOBLhzzGyXPPD+iQo/ARefgW4h8PYmsYCwzA5hNP9Y+wSBIjzERCgD1Kz94kEeWwcRLnzNZDNGdzsLR07gvGrdqJz2+zfk8o56CnY9QheDDVYHr2OmTbiImjcLUPmeVlYH5d/AXjamJ7R/mRDRF0yumj3VYZSKtePoGXF6otkhjB6l4OV/t2RWApoDJJ0KVwvPRWV919ASSDMCQZ/suDefT9hs6eWlEQM0mcx78nuKdqAI2tyDE=
+    - secure: dxUXq6e049jZ+cDBLz/+agklQ2V2CEAUHYbgD6tOpe1tjI/7uerRAuTHzv1M9k10QKSA8Zm2HPp3+G5DhmY5jM6RBhghdDcTBPYTTr/bmWI07gNSaHJ3P3TI1WHX18g6/xAqkoG8ARsNEdktlgSorpC1OQhEtUiheM7VSIPgvgydtuU+cSgcKTcg1EW5iVHpSXowo8r+jlCPRNvdPWgN1DHFfQgTst6Tf/rEkkntfzGiLGzwroMgq1VvZLHAUiJm5KsvEPbJZRBft0t33wYSviHBy+/gq+y13FGwWUTJKpOuYW73ONMu+trR/W22Cpkl9V64+LFYV6M1bVaNwmqSqTPF8+4205G8Z26dM90N07TG7qh3Yzp/MAYINoGzw4IpGwwEYz18UhdoMEJNd6xYvTnwuqA4fWhpvclNLeMt5SsLumxEc8w/2i/paOBLhzzGyXPPD+iQo/ARefgW4h8PYmsYCwzA5hNP9Y+wSBIjzERCgD1Kz94kEeWwcRLnzNZDNGdzsLR07gvGrdqJz2+zfk8o56CnY9QheDDVYHr2OmTbiImjcLUPmeVlYH5d/AXjamJ7R/mRDRF0yumj3VYZSKtePoGXF6otkhjB6l4OV/t2RWApoDJJ0KVwvPRWV919ASSDMCQZ/suDefT9hs6eWlEQM0mcx78nuKdqAI2tyDE=
     before_install:
     - cd client
     install:
     - npm install
     script:
-    - npm run build
+    - NODE_ENV=production npm run build
+    - echo -n 'tracker.delivery' > dist/CNAME
     deploy:
       provider: pages
       skip-cleanup: true
