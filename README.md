@@ -8,6 +8,6 @@ Document : https://tracker.delivery/guide/
 ## License
 - Please read the `LICENSE` file.
 
-## Collaborators
+## Maintainers
 - [@shlee322](https://github.com/shlee322)
 - [@zinozzino](https://github.com/zinozzino)
