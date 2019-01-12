@@ -1,11 +1,18 @@
 {
-  "name": "tracking-api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "name": "delivery-tracker-apiserver",
+  "version": "0.1.0",
+  "description": "Delivery and Shipping Tracking Service - API Server",
+  "homepage": "https://github.com/shlee322/delivery-tracker",
+  "bugs": {
+    "url" : "https://github.com/shlee322/delivery-tracker/issues"
+  },
+  "main": "app.js",
   "scripts": {
     "start": "node server.js",
     "test": "mocha"
+  },
+  "bin": {
+    "delivery-tracker-apiserver": "./server.js"
   },
   "author": "Sanghyeok Lee <shlee322@elab.kr>",
   "license": "MIT",

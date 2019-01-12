@@ -1,4 +1,5 @@
 const isProd = process.env.NODE_ENV === 'production'
+const apiBaseURL = process.env.API_ENDPOINT ? process.env.API_ENDPOINT : isProd ? 'https://apis.tracker.delivery' : 'http://localhost:8080'
 
 module.exports = {
   modules: [
@@ -45,6 +46,6 @@ module.exports = {
     height: '1px',
   },
   axios: {
-    baseURL: isProd ? 'https://apis.tracker.delivery' : 'http://localhost:8080',
+    baseURL: apiBaseURL,
   }
 }

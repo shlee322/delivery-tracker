@@ -1,7 +1,11 @@
 {
-  "name": "tracking-client",
-  "version": "1.0.0",
-  "description": "",
+  "name": "delivery-tracker-client",
+  "version": "0.1.0",
+  "description": "Delivery and Shipping Tracking Service - Client",
+  "homepage": "https://github.com/shlee322/delivery-tracker",
+  "bugs": {
+    "url": "https://github.com/shlee322/delivery-tracker/issues"
+  },
   "main": "index.js",
   "scripts": {
     "dev": "nuxt",
