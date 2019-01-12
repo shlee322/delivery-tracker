@@ -27,6 +27,6 @@ NODE_ENV=production PORT=8888 API_ENDPOINT='http://127.0.0.1:8080' delivery-trac
 ## License
 - Please read the `LICENSE` file.
 
-## Collaborators
+## Maintainers
 - [@shlee322](https://github.com/shlee322)
 - [@zinozzino](https://github.com/zinozzino)
