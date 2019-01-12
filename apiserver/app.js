@@ -1,3 +1,4 @@
+const path = require('path')
 const fs = require('fs')
 const cors = require('cors')
 
@@ -7,7 +8,7 @@ function init_app(app) {
   var CARRIERS = {}
   var CARRIERS_INFOS = []
 
-  fs.readdirSync('./carriers').forEach(name => {
+  fs.readdirSync(path.join(__dirname, 'carriers')).forEach(name => {
     console.log('load carrier ' + name);
     CARRIERS[name] = require('./carriers/' + name);
   })
