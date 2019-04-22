@@ -40,15 +40,16 @@ jobs:
     before_install:
     - cd client
     install:
-    - npm install
+    - yarn install
     script:
-    - NODE_ENV=production npm run build
+    - NODE_ENV=production yarn run build
     - echo -n 'tracker.delivery' > dist/CNAME
     deploy:
       provider: pages
-      skip-cleanup: true
-      github-token: "$GITHUB_TOKEN"
-      keep-history: true
-      local-dir: client/dist
+      skip_cleanup: true
+      github_token: "$GITHUB_TOKEN"
+      keep_history: true
+      local_dir: client/dist
+      target_branch: gh-pages
     after_script:
     - cd ..

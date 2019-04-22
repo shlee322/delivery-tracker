@@ -21,13 +21,12 @@
     "axios": "^0.18.0",
     "buefy": "^0.6.5",
     "libphonenumber-js": "^1.1.7",
+    "nuxt": "^2.6.2",
     "nuxt-buefy": "^0.0.4",
-    "nuxt-edge": "2.0.0-25396844.0aea0d5",
-    "vue": "^2.5.16",
+    "vue": "^2.6.10",
     "vue-highlightjs": "^1.3.3"
   },
   "devDependencies": {
-    "extract-text-webpack-plugin": "^3.0.2",
     "node-sass": "^4.8.3",
     "sass-loader": "^7.0.0"
   }
