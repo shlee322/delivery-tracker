@@ -46,7 +46,7 @@ function getTrack(trackId) {
       const informationTable = res.data.parcelResultMap.resultList
       const progressTable = res.data.parcelDetailResultMap.resultList
 
-      if(progressTable.length == 0) {
+      if(informationTable.length === 0 && progressTable.length === 0) {
         return reject({
           code: 404,
           message: '해당 운송장이 존재하지 않습니다.'
@@ -58,7 +58,7 @@ function getTrack(trackId) {
       let shippingInformation = {
         from: {name: null, time: null},
         to: {name: null, time: null},
-        state: null,
+        state: {id: 'information_received', text:'상품준비중'},
         progresses: (rows => {
           return rows.map(row => {
             return {
@@ -73,12 +73,14 @@ function getTrack(trackId) {
         })(progressTable)
       }
 
-      shippingInformation.state = shippingInformation.progresses[shippingInformation.progresses.length - 1].status
+      if ( shippingInformation.progresses.length > 0 ) {
+        shippingInformation.state = shippingInformation.progresses[shippingInformation.progresses.length - 1].status
+      }
 
       if(informationTable.length != 0) {
         shippingInformation.from = {
           name: informationTable[0].sendrNm.substring(0, 1) + '*',
-          time: parseTime(progressTable[0].dTime),
+          time: progressTable.length != 0 ? parseTime(progressTable[0].dTime) : null,
         }
 
         shippingInformation.to = {
