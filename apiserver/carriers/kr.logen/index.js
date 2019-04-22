@@ -1,4 +1,4 @@
-const iconv  = new require('iconv').Iconv('EUC-KR', 'UTF-8//TRANSLIT//IGNORE')
+const iconv  = new (require('iconv').Iconv)('EUC-KR', 'UTF-8//TRANSLIT//IGNORE')
 const axios = require('axios')
 const { JSDOM } = require('jsdom')
 const qs = require('querystring')
