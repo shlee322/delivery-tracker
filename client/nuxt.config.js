@@ -18,17 +18,20 @@ module.exports = {
     analyze: true,
     vendor: ['vue-highlightjs']
   },
+  generate: {
+    fallback: true
+  },
   css: [
     '@/assets/custom.scss',
   ],
   head: {
-    titleTemplate: '배송조회',
+    titleTemplate: 'Delivery Tracker',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1, user-scalable=no' },
       { name: 'apple-mobile-web-capable', content: 'yes' },
       { name: 'theme-color', content: '#c6c6c6' },
-      { name: 'application-name', content: 'DoumIO Tracker' },
+      { name: 'application-name', content: 'Delivery Tracker' },
     ],
     link: [
       { rel: 'icon', sizes: '192x192', href: '/icon-192.png' },
