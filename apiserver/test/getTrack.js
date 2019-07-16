@@ -1,7 +1,7 @@
 var assert = require('assert');
 
 let testCase = [
-  { carrier: 'kr.cjlogistics', trackId: '000000000000'},
+  { carrier: 'kr.cjlogistics', trackId: '0000000000'},
   { carrier: 'kr.cjlogistics', trackId: '123456789012', errorCode: 404 },
   { carrier: 'kr.cvsnet', trackId: '1111111111' },
   { carrier: 'kr.cvsnet', trackId: '0123456789', errorCode: 404 },
@@ -11,7 +11,7 @@ let testCase = [
   { carrier: 'kr.hanjin', trackId: '0123456782', errorCode: 404 },
   { carrier: 'kr.logen', trackId: '00000000000' },
   { carrier: 'kr.logen', trackId: '12345678901', errorCode: 404 },
-  { carrier: 'kr.lotte', trackId: '000000000000' },
+  // { carrier: 'kr.lotte', trackId: '000000000000' }, // TODO : need an available trackId
   { carrier: 'kr.lotte', trackId: '1234567890123', errorCode: 404 },
 ]
 
