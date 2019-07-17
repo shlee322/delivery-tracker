@@ -41,7 +41,7 @@ function getTrack(trackId) {
           let result = []
           table.querySelectorAll('tbody > tr').forEach(element => {
             const tds = element.querySelectorAll('td')
-
+            if (tds.length < 4) return;
             if (tds[1].textContent.indexOf('--:--') !== -1) return;
             
             result.push({
