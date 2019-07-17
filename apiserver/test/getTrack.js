@@ -13,6 +13,7 @@ let testCase = [
   { carrier: 'kr.logen', trackId: '12345678901', errorCode: 404 },
   // { carrier: 'kr.lotte', trackId: '000000000000' }, // TODO : need an available trackId
   { carrier: 'kr.lotte', trackId: '1234567890123', errorCode: 404 },
+  // TODO : add kr.cway test code
 ]
 
 function testTrackInfo(testTarget, info, done)
