@@ -37,4 +37,4 @@ When using self-hosting, it is recommended to cache APIs and client pages using 
 
 ### Sponsorship (Enterprise)
 We provide sponsors with additional features such as Webhook and Technical Support.
-Please contact `shlee322@gmail.com` for more information.
+Please contact `contact@tracker.delivery` for more information.

@@ -58,8 +58,8 @@
         </tbody>
       </table>
 
-      <h1 class="title">SLA</h1>
-      <p>본 서비스는 무료로 제공되며, SLA를 보장하지 않습니다. 상용 목적으로 사용하시는 경우 <a href="https://github.com/shlee322/delivery-tracker" target="_blank">Github</a>에서 소스코드를 다운로드 받아 직접 구축하시기를 권장 드립니다.</p>
+      <h1 class="title">Sponsorship (Enterprise)</h1>
+      <p>스폰서에게 Webhook과 기술 지원 등의 추가 기능을 제공하고 있습니다. 자세한 내용은 <a href="mailto:contact@tracker.delivery">contact@tracker.delivery</a>로 문의 부탁드립니다.</p>
     </div>
     <footer class="footer">
       <p>택배사 추가 요청 등 문의는 <a href="https://github.com/shlee322/delivery-tracker/issues" target="_blank">Github</a>로 주시기 바랍니다.</p>
