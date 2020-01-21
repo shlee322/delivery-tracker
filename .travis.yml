@@ -9,7 +9,7 @@ jobs:
     install:
     - yarn install
     script:
-    - NODE_TLS_REJECT_UNAUTHORIZED=0 npm run test
+    - NODE_TLS_REJECT_UNAUTHORIZED=0 yarn run test
     after_script:
     - cd ../..
   - stage: build client
