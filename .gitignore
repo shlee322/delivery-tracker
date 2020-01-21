@@ -63,3 +63,4 @@ dist/
 
 package-lock.json
 
+.python-version

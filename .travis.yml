@@ -7,7 +7,6 @@ jobs:
     before_install:
     - cd packages/apiserver
     install:
-    - pyenv install 2.7.17
     - yarn install
     script:
     - NODE_TLS_REJECT_UNAUTHORIZED=0 npm run test
@@ -17,7 +16,6 @@ jobs:
     before_install:
     - cd packages/client
     install:
-    - pyenv install 2.7.17
     - yarn install
     script:
     - yarn run build
@@ -26,7 +24,6 @@ jobs:
   - stage: deploy server
     if: branch = master AND type = push
     before_install:
-    - pyenv install 2.7.17
     - cd packages/apiserver
     - openssl aes-256-cbc -K $encrypted_ab7e70f73e9d_key -iv $encrypted_ab7e70f73e9d_iv -in gae-deploy-key.json.enc -out gae-deploy-key.json -d
     script: skip
@@ -41,7 +38,6 @@ jobs:
     env:
     - secure: dxUXq6e049jZ+cDBLz/+agklQ2V2CEAUHYbgD6tOpe1tjI/7uerRAuTHzv1M9k10QKSA8Zm2HPp3+G5DhmY5jM6RBhghdDcTBPYTTr/bmWI07gNSaHJ3P3TI1WHX18g6/xAqkoG8ARsNEdktlgSorpC1OQhEtUiheM7VSIPgvgydtuU+cSgcKTcg1EW5iVHpSXowo8r+jlCPRNvdPWgN1DHFfQgTst6Tf/rEkkntfzGiLGzwroMgq1VvZLHAUiJm5KsvEPbJZRBft0t33wYSviHBy+/gq+y13FGwWUTJKpOuYW73ONMu+trR/W22Cpkl9V64+LFYV6M1bVaNwmqSqTPF8+4205G8Z26dM90N07TG7qh3Yzp/MAYINoGzw4IpGwwEYz18UhdoMEJNd6xYvTnwuqA4fWhpvclNLeMt5SsLumxEc8w/2i/paOBLhzzGyXPPD+iQo/ARefgW4h8PYmsYCwzA5hNP9Y+wSBIjzERCgD1Kz94kEeWwcRLnzNZDNGdzsLR07gvGrdqJz2+zfk8o56CnY9QheDDVYHr2OmTbiImjcLUPmeVlYH5d/AXjamJ7R/mRDRF0yumj3VYZSKtePoGXF6otkhjB6l4OV/t2RWApoDJJ0KVwvPRWV919ASSDMCQZ/suDefT9hs6eWlEQM0mcx78nuKdqAI2tyDE=
     before_install:
-    - pyenv install 2.7.17
     - cd packages/client
     install:
     - yarn install
