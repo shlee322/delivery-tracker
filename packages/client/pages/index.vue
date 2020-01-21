@@ -185,7 +185,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'node_modules/bulma/sass/utilities/initial-variables';
+@import 'bulma/sass/utilities/initial-variables';
 
 $wide-letter-spacing: 0.25rem;
 

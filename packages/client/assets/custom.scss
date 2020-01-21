@@ -4,13 +4,13 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism.min.css');
 
 // Import Bulma's core
-@import 'node_modules/bulma/sass/utilities/initial-variables';
+@import 'bulma/sass/utilities/initial-variables';
 
 $family-sans-serif: 'Nanum Gothic', Arial, Helvetica, sans-serif;
 $family-primary: $family-sans-serif;
 
 // Import Bulma and Buefy styles
-@import 'node_modules/bulma/bulma';
+@import 'bulma/bulma';
 
 body {
   line-height: 1.15;

@@ -146,11 +146,11 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'node_modules/highlight.js/styles/github-gist';
+@import 'highlight.js/styles/github-gist';
 </style>
 
 <style lang="scss" scoped>
-@import 'node_modules/bulma/sass/utilities/initial-variables';
+@import 'bulma/sass/utilities/initial-variables';
 
 #guide {
   max-width: $desktop;
