@@ -7,7 +7,8 @@ module.exports = {
   "extends": [
     "eslint:recommended",
     "plugin:vue/essential",
-    "airbnb-base"
+    "airbnb-base",
+    "plugin:prettier/recommended",
   ],
   "globals": {
     "Atomics": "readonly",
@@ -18,7 +19,8 @@ module.exports = {
     "sourceType": "module"
   },
   "plugins": [
-    "vue"
+    "vue",
+    "prettier",
   ],
   "rules": {
   }
