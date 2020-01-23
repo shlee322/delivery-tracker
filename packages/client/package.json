@@ -12,6 +12,7 @@
     "build": "nuxt generate",
     "clean": "rm -rf dist/",
     "lint": "eslint --ext .vue,.js pages plugins",
+    "lintfix": "eslint --fix --ext .vue,.js pages plugins",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

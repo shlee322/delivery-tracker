@@ -4,5 +4,6 @@ module.exports = {
   ...baseConfig,
   rules: {
     ...baseConfig.rules,
+    'prefer-promise-reject-errors': 'off'
   }
 }

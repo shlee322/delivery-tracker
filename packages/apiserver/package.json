@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node server.js",
     "test": "mocha",
-    "lint": "eslint carriers test app.js server.js"
+    "lint": "eslint carriers app.js server.js",
+    "lintfix": "eslint --fix carriers test app.js server.js"
   },
   "bin": {
     "delivery-tracker-apiserver": "./server.js"
