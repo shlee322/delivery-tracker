@@ -11,6 +11,7 @@
     "dev": "nuxt",
     "build": "nuxt generate",
     "clean": "rm -rf dist/",
+    "lint": "eslint src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
