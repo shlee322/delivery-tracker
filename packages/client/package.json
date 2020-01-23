@@ -11,7 +11,7 @@
     "dev": "nuxt",
     "build": "nuxt generate",
     "clean": "rm -rf dist/",
-    "lint": "eslint src",
+    "lint": "eslint --ext .vue,.js pages plugins",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
