@@ -1,63 +1,70 @@
-const path = require('path')
-const fs = require('fs')
-const cors = require('cors')
+const path = require('path');
+const fs = require('fs');
+const cors = require('cors');
 
-function init_app(app) {
-  app.use(cors())
+function initApp(app) {
+  app.use(cors());
 
-  var CARRIERS = {}
-  var CARRIERS_INFOS = []
+  const CARRIERS = {};
 
   fs.readdirSync(path.join(__dirname, 'carriers')).forEach(name => {
-    console.log('load carrier ' + name);
-    CARRIERS[name] = require('./carriers/' + name);
-  })
+    // eslint-disable-next-line no-console
+    console.log(`load carrier ${name}`);
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    CARRIERS[name] = require(`./carriers/${name}`);
+  });
 
-  for(var id in CARRIERS) {
-    CARRIERS_INFOS.push({
-      id,
-      ...CARRIERS[id].info,
-    })
-  }
+  const CARRIERS_INFOS = CARRIERS.map(({ id, info }) => ({ id, ...info }));
 
-  app.get('/carriers', function (req, res) {
-    res.json(CARRIERS_INFOS)
-  })
+  app.get('/carriers', (req, res) => {
+    res.json(CARRIERS_INFOS);
+  });
 
-  app.get('/carriers/:carrier_id', function (req, res) {
-    if(!(req.params.carrier_id in CARRIERS)) {
-      return res.status(404).json({
+  app.get('/carriers/:id', (req, res) => {
+    if (!(req.params.id in CARRIERS)) {
+      res.status(404).json({
         message: '지원하지 않는 택배사입니다.',
-      })
+      });
+      return;
     }
 
     res.json({
       id: req.params.carrier_id,
       ...CARRIERS[req.params.carrier_id].info,
-    })
-  })
+    });
+  });
 
-  app.get('/carriers/:carrier_id/tracks/:track_id', (req, res) => {
-    const carrier_id = req.params.carrier_id;
+  app.get('/carriers/:carrierId/tracks/:trackId', (req, res) => {
+    const { carrierId, trackId } = req.params;
 
-    if(!(carrier_id in CARRIERS)) {
-      return res.status(404).json({
+    if (!(carrierId in CARRIERS)) {
+      res.status(404).json({
         message: '지원하지 않는 택배사입니다.',
-      })
+      });
+      return;
     }
 
-    CARRIERS[carrier_id].getTrack(req.params.track_id)
-      .then(info => res.status(200).json({
-        ...info,
-        carrier: {
-          id: carrier_id,
-          ...CARRIERS[carrier_id].info,
-        },
-      })).catch(err => res.status(typeof err.code == 'number' ? err.code : 500).json({
-        message: err.message ? err.message : '오류가 발생하였습니다. 잠시후 다시 시도해주세요.'
-      }))
-  })
+    CARRIERS[carrierId]
+      .getTrack(trackId)
+      .then(info =>
+        res.status(200).json({
+          ...info,
+          carrier: {
+            id: carrierId,
+            ...CARRIERS[carrierId].info,
+          },
+        })
+      )
+      .catch(err =>
+        res.status(typeof err.code === 'number' ? err.code : 500).json({
+          message: err.message
+            ? err.message
+            : '오류가 발생하였습니다. 잠시후 다시 시도해주세요.',
+        })
+      );
+  });
+
   return app;
 }
 
-module.exports = init_app;
+module.exports = initApp;

@@ -4,12 +4,14 @@
   "description": "Delivery and Shipping Tracking Service - API Server",
   "homepage": "https://github.com/shlee322/delivery-tracker",
   "bugs": {
-    "url" : "https://github.com/shlee322/delivery-tracker/issues"
+    "url": "https://github.com/shlee322/delivery-tracker/issues"
   },
   "main": "app.js",
   "scripts": {
     "start": "node server.js",
-    "test": "mocha"
+    "test": "mocha",
+    "lint": "eslint carriers app.js server.js",
+    "lintfix": "eslint --fix carriers test app.js server.js"
   },
   "bin": {
     "delivery-tracker-apiserver": "./server.js"
