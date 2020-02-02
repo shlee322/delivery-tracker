@@ -14,14 +14,14 @@ function initApp(app) {
     CARRIERS[name] = require(`./carriers/${name}`);
   });
 
-  const CARRIERS_INFOS = CARRIERS.map(({ id, info }) => ({ id, ...info }));
+  const CARRIERS_INFOS = Object.keys(CARRIERS).map(id => ({ id, ...CARRIERS[id].info }));
 
   app.get('/carriers', (req, res) => {
     res.json(CARRIERS_INFOS);
   });
 
-  app.get('/carriers/:id', (req, res) => {
-    if (!(req.params.id in CARRIERS)) {
+  app.get('/carriers/:carrierId', (req, res) => {
+    if (!(req.params.carrierId in CARRIERS)) {
       res.status(404).json({
         message: '지원하지 않는 택배사입니다.',
       });
@@ -29,8 +29,8 @@ function initApp(app) {
     }
 
     res.json({
-      id: req.params.carrier_id,
-      ...CARRIERS[req.params.carrier_id].info,
+      id: req.params.carrierId,
+      ...CARRIERS[req.params.carrierId].info,
     });
   });
 

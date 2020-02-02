@@ -4,7 +4,7 @@ const { Iconv } = require('iconv');
 const { JSDOM } = require('jsdom');
 const qs = require('querystring');
 
-const iconv = new Iconv('EUC-KR', 'UTF-8//TRANSLIT//IGNORE')();
+const iconv = new Iconv('EUC-KR', 'UTF-8//TRANSLIT//IGNORE');
 
 const STATUS_TEXT_MAP = {
   at_pickup: '상품인수',
