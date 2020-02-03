@@ -91,7 +91,7 @@
       ><code class="json"></code></pre>
 
       <h1 class="title">지원 택배사</h1>
-      <table v-if="carrier.length !== 0">
+      <table v-if="carriers.length !== 0">
         <thead>
           <tr>
             <th>이름</th>
