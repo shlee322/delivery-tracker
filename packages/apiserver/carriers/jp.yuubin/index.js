@@ -34,7 +34,7 @@ function getTrack(trackId) {
           params: {
             'org.apache.struts.taglib.html.TOKEN': '',
             searchKind: 5002,
-            locale: 'en', // en, ja
+            locale: 'ja', // en, ja
             SVID: '',
             reqCodeNo1: trackId,
           },
