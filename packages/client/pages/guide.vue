@@ -8,10 +8,10 @@
     /></a>
     <div class="hero is-medium is-warning">
       <div class="hero-body">
-        <h1 class="title">Delivery Tracker - 배송 조회 API 서비스</h1>
-        <h2 class="subtitle">쇼핑몰 개발 시 배송 조회 개발하기 귀찮으셨죠?</h2>
+        <h1 class="title">{{ $t('guide.hero.title') }}</h1>
+        <h2 class="subtitle">{{ $t('guide.hero.subtitle') }}</h2>
         <p>
-          이제 이 서비스를 이용하여 쉽고 간편하게 배송조회 기능을 만들어보세요.
+          {{ $t('guide.hero.phrase') }}
         </p>
         <div style="margin-top:20px">
           <a
@@ -24,21 +24,21 @@
             >Star</a
           >
         </div>
+        <button class="locale-button" :class="{ 'is-active': $i18n.locale === 'ko' }" v-on:click="$i18n.locale = 'ko'">ko</button>
+        <button class="locale-button" :class="{ 'is-active': $i18n.locale === 'en' }" v-on:click="$i18n.locale = 'en'">en</button>
+        <button class="locale-button" :class="{ 'is-active': $i18n.locale === 'ja' }" v-on:click="$i18n.locale = 'ja'">ja</button>
       </div>
     </div>
     <div class="content">
-      <h1 class="title">링크형</h1>
-      <p>
-        배송조회 페이지를 팝업 형태를 띄우고 싶다면 아래와 같은 방식으로 코드를
-        넣으시면 됩니다.
-      </p>
+      <h1 class="title">{{ $t('guide.content.link.title') }}</h1>
+      <p>{{ $t('guide.content.link.phrase') }}</p>
       <pre v-highlightjs><code class="html">
 &lt;a href="https://tracker.delivery/#/:carrier_id/:track_id" target="_blank"&gt;배송조회&lt;/a&gt;
       </code></pre>
-      <h3 class="title">예제</h3>
+      <h3 class="title">{{ $t('guide.content.example') }}</h3>
       <b-field>
         <b-select v-model="example.carrier">
-          <option value="" selected disabled style="color:#ccc;">택배사</option>
+          <option value="" selected disabled style="color:#ccc;">{{ $t('guide.content.link.carriers') }}</option>
           <option
             v-for="carrier in carriers"
             :key="carrier.id"
@@ -47,15 +47,12 @@
           >
         </b-select>
         <b-input type="number" placeholder="송장번호" v-model="example.track" />
-        <a @click="openExample()" class="button">예제 보기</a>
+        <a @click="openExample()" class="button">{{ $t('guide.content.link.try-example') }}</a>
       </b-field>
       <pre v-highlightjs="exampleHtml"><code class="html"></code></pre>
-      <h1 class="title">API형</h1>
-      <p>
-        제공되는 웹 페이지를 이용하지 않고 Restful API에 직접 접근하여 데이터를
-        가져올 수 있습니다.
-      </p>
-      <h3 class="title">택배사 목록 조회 API</h3>
+      <h1 class="title">{{ $t('guide.content.api.title') }}</h1>
+      <p>{{ $t('guide.content.api.phrase') }}</p>
+      <h3 class="title">{{ $t('guide.content.api.carriers-api') }}</h3>
       <p>
         <span class="tag is-dark">GET</span>
         https://apis.tracker.delivery/carriers
@@ -63,10 +60,10 @@
       <pre
         v-highlightjs="example.carriers_api_res"
       ><code class="json"></code></pre>
-      <h3 class="title">배송 조회 API</h3>
+      <h3 class="title">{{ $t('guide.content.api.tracks-api') }}</h3>
       <b-field>
         <b-select v-model="example.carrier">
-          <option value="" selected disabled style="color:#ccc;">택배사</option>
+          <option value="" selected disabled style="color:#ccc;">{{ $t('guide.content.api.carrier') }}</option>
           <option
             v-for="carrier in carriers"
             :key="carrier.id"
@@ -81,7 +78,7 @@
         https://apis.tracker.delivery/carriers/:carrier_id/tracks/:track_id
       </p>
       <p>
-        <span class="tag">예제</span> https://apis.tracker.delivery/carriers/{{
+        <span class="tag">Example</span> https://apis.tracker.delivery/carriers/{{
           example.carrier
         }}/tracks/{{ example.track }}
       </p>
@@ -90,12 +87,12 @@
         v-highlightjs="example.track_api_res"
       ><code class="json"></code></pre>
 
-      <h1 class="title">지원 택배사</h1>
-      <table v-if="carrier.length !== 0">
+      <h1 class="title">{{ $t('guide.content.support.carrier') }}</h1>
+      <table v-if="carriers.length !== 0">
         <thead>
           <tr>
-            <th>이름</th>
-            <th>코드</th>
+            <th>{{ $t('guide.content.support.name') }}</th>
+            <th>{{ $t('guide.content.support.code') }}</th>
           </tr>
         </thead>
         <tbody v-for="carrier in carriers" :key="carrier.id">
@@ -107,21 +104,11 @@
       </table>
 
       <h1 class="title">Sponsorship (Enterprise)</h1>
-      <p>
-        스폰서에게 Webhook과 기술 지원 등의 추가 기능을 제공하고 있습니다.
-        자세한 내용은
-        <a href="mailto:contact@tracker.delivery">contact@tracker.delivery</a>로
-        문의 부탁드립니다.
-      </p>
+      <p>{{ $t('guide.sponsorship') }}: <a href="mailto:contact@tracker.delivery">contact@tracker.delivery</a></p>
     </div>
     <footer class="footer">
       <p>
-        택배사 추가 요청 등 문의는
-        <a
-          href="https://github.com/shlee322/delivery-tracker/issues"
-          target="_blank"
-          >Github</a
-        >로 주시기 바랍니다.
+        {{ $t('guide.footer') }}: <a href="https://github.com/shlee322/delivery-tracker/issues" target="_blank" >Github</a>
       </p>
     </footer>
     <b-modal :active.sync="isExampleOpened">
@@ -161,7 +148,7 @@ export default {
   },
   computed: {
     exampleUrl() {
-      return `https://tracker.delivery/#/${this.example.carrier}/${this.example.track}`;
+      return `/#/${this.example.carrier}/${this.example.track}`;
     },
     exampleHtml() {
       return `<a href="https://tracker.delivery/#/${this.example.carrier}/${this.example.track}" target="_blank">배송조회</a>`;
@@ -237,5 +224,23 @@ export default {
 
 .content {
   padding: 4rem;
+}
+
+.locale-button {
+    background-color: #292b2c;
+    border: 0;
+    color: #FFFFFF;
+    cursor: pointer;
+    outline: none;
+    padding: 5px 10px;
+    transition: background-color .5s ease-in-out;
+
+    &:hover {
+        background-color: #0275d8;
+    }
+
+    &.is-active {
+        background-color: #0275d8;
+    }
 }
 </style>

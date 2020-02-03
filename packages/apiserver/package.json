@@ -8,6 +8,7 @@
   },
   "main": "app.js",
   "scripts": {
+    "dev": "nodemon server.js",
     "start": "node server.js",
     "test": "mocha",
     "lint": "eslint carriers app.js server.js",
@@ -24,6 +25,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "html-entities": "^1.2.1",
+    "i18n": "^0.8.5",
     "iconv": "^2.3.0",
     "jsdom": "^13.0.0",
     "request": "^2.85.0",
@@ -31,6 +33,7 @@
     "tough-cookie": "^2.3.4"
   },
   "devDependencies": {
+    "nodemon": "^2.0.2",
     "eslint": "^5.9.0",
     "mocha": "^5.2.0"
   }

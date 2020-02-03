@@ -6,7 +6,7 @@ module.exports = {
     '@nuxtjs/axios',
     ['nuxt-buefy', { css: false, materialDesignIcons: false }],
   ],
-  plugins: ['~plugins/vue-highlightjs'],
+  plugins: ['~plugins/vue-highlightjs', '~plugins/i18n.js'],
   build: {
     postcss: {
       plugins: {
