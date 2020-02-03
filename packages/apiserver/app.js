@@ -1,9 +1,16 @@
 const path = require('path');
 const fs = require('fs');
+const i18n = require('i18n');
 const cors = require('cors');
+
+i18n.configure({
+  locales: ['en', 'ja', 'ko'],
+  directory: __dirname + '/locales',
+});
 
 function initApp(app) {
   app.use(cors());
+  app.use(i18n.init);
 
   const CARRIERS = {};
 
@@ -23,7 +30,7 @@ function initApp(app) {
   app.get('/carriers/:carrierId', (req, res) => {
     if (!(req.params.carrierId in CARRIERS)) {
       res.status(404).json({
-        message: '지원하지 않는 택배사입니다.',
+        message: res.__('not supported carrier'),
       });
       return;
     }
@@ -39,7 +46,7 @@ function initApp(app) {
 
     if (!(carrierId in CARRIERS)) {
       res.status(404).json({
-        message: '지원하지 않는 택배사입니다.',
+        message: res.__('not supported carrier'),
       });
       return;
     }
@@ -59,7 +66,7 @@ function initApp(app) {
         res.status(typeof err.code === 'number' ? err.code : 500).json({
           message: err.message
             ? err.message
-            : '오류가 발생하였습니다. 잠시후 다시 시도해주세요.',
+            : res.__('error message'),
         })
       );
   });
