@@ -20,8 +20,8 @@ function getTrack(trackId) {
     const headers = ['발송점', '도착점', '담당직원', '인수자', '영업소', '연락처'];
     return headers
       .map((header, i) => {
-        return $(td[i + 3]).text().trim() !== ''
-          ? `${header}: ${$(td[i + 3]).text().trim()}`
+        return $(td[i + 2]).text().trim() !== ''
+          ? `${header}: ${$(td[i + 2]).text().trim()}`
           : null;
       })
       .filter(obj => obj !== null)
