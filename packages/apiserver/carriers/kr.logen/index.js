@@ -1,16 +1,14 @@
-const { Iconv } = require('iconv');
+// const { Iconv } = require('iconv');
 const axios = require('axios');
-const { JSDOM } = require('jsdom');
-const qs = require('querystring');
+const cheerio = require('cheerio')
 
-const iconv = new Iconv('EUC-KR', 'UTF-8//TRANSLIT//IGNORE');
+// const iconv = new Iconv('EUC-KR', 'UTF-8//TRANSLIT//IGNORE');
 
 function parseStatus(s) {
   if (s.includes('터미널입고')) return { id: 'at_pickup', text: '상품인수' };
   if (s.includes('배송출고'))
     return { id: 'out_for_delivery', text: '배송출발' };
   if (s.includes('배송완료')) return { id: 'delivered', text: '배송완료' };
-
   return { id: 'in_transit', text: '이동중' };
 }
 
@@ -18,12 +16,12 @@ function getTrack(trackId) {
   // const trimString = s => {
   //   return s.replace(/([\n\t]{1,}|\s{2,})/g, ' ').trim();
   // };
-  const tdToDescription = td => {
-    const headers = ['발송점', '도착점', '담당직원', '인수자', '영업소'];
+  const tdToDescription = (td, $) => {
+    const headers = ['발송점', '도착점', '담당직원', '인수자', '영업소', '연락처'];
     return headers
       .map((header, i) => {
-        return td[i + 3].textContent.trim() !== ''
-          ? `${header}:${td[i + 3].textContent.trim()}`
+        return $(td[i + 2]).text().trim() !== ''
+          ? `${header}: ${$(td[i + 2]).text().trim()}`
           : null;
       })
       .filter(obj => obj !== null)
@@ -33,20 +31,17 @@ function getTrack(trackId) {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `https://www.ilogen.com/iLOGEN.Web.New/TRACE/TraceDetail.aspx?${qs.stringify(
-          { slipno: trackId, gubun: 'link' }
-        )}`,
+        `https://www.ilogen.com/web/personal/trace/${encodeURI(trackId)}`,
         {
           responseType: 'arraybuffer',
         }
       )
       .then(res => {
-        const dom = new JSDOM(iconv.convert(res.data).toString('utf-8'));
-        const { document } = dom.window;
+        const $ = new cheerio.load(res.data.toString('utf-8'));
 
-        const tables = document.querySelectorAll('table');
-        const informationTable = tables[1];
-        const progressTable = tables[3];
+        const tables = $('tbody');
+        const informationTable = tables[0];
+        const progressTable = tables[1];
 
         if (!progressTable) {
           return reject({
@@ -55,36 +50,34 @@ function getTrack(trackId) {
           });
         }
 
-        return { informationTable, progressTable };
+        return { informationTable: $(informationTable), progressTable: $(progressTable), $ };
       })
-      .then(({ informationTable, progressTable }) => {
+      .then(({ informationTable, progressTable, $ }) => {
         const shippingInformation = {
           from: {
-            name: informationTable.querySelector('input[name=tbSndCustNm]')
-              .value,
+            name: informationTable.children('tr').eq(3).children('td').eq(1).text().trim(),
             time: null,
           },
           to: {
-            name: informationTable.querySelector('input[name=tbRcvCustNm]')
-              .value,
+            name: informationTable.children('tr').eq(3).children('td').eq(3).text().trim(),
             time: null,
           },
           state: null,
           progresses: [],
         };
 
-        progressTable.querySelectorAll('tr').forEach(element => {
-          const td = element.querySelectorAll('td');
-          if (td[0].textContent.trim() === '') {
+        progressTable.children('tr').each((index, element) => {
+          const td = $(element).children('td');
+          if (td.eq(0).text().trim() === '') {
             return;
           }
           shippingInformation.progresses.push({
-            time: `${td[0].textContent.replace(' ', 'T')}:00+09:00`,
+            time: `${td.eq(0).text().replace(' ', 'T').replace(/\./g, '-')}:00+09:00`,
             location: {
-              name: td[1].textContent,
+              name: td.eq(1).text(),
             },
-            status: parseStatus(td[2].textContent),
-            description: tdToDescription(td),
+            status: parseStatus(td.eq(2).text()),
+            description: tdToDescription(td, $),
           });
         });
 
