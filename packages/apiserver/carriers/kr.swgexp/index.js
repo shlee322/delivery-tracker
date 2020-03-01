@@ -1,8 +1,15 @@
-const axios = require('axios')
-const qs = require('querystring')
-const { JSDOM } = require('jsdom')
-function getTrack(trackId) {
+const axios = require('axios');
+const qs = require('querystring');
+const { JSDOM } = require('jsdom');
 
+function parseStatus(status) {
+	if (status.includes('발송준비')) return { id: 'at_pickup', text: '상품인수'};
+	if (status.includes('발송')) return { id: 'out_of_delivery', text: '배송출발'};
+	if (status.includes('도착')) return { id: 'delivered', text: '배송완료'};
+	return { id: 'in_transit', text: '상품이동중'};
+}
+
+function getTrack(trackId) {
   return new Promise((resolve, reject) => {
     axios.get("http://www.swgexp.com/main/main.asp")
     .then(resp => {
@@ -23,11 +30,12 @@ function getTrack(trackId) {
         if ( table === undefined ) {
           return reject({
             code: 404,
-            message: '운송장이 등록되지 않았거나 업체에서 상품을 준비중이니 업체로 문의해주시기 바랍니다.'
+            message: '운송장 정보를 찾을 수 없습니다.'
           });
         }
         const contents = table.querySelectorAll('tr');
-        const progresses = document.querySelectorAll('table[class="form_list"] tbody')[1].querySelectorAll('tr[bgcolor="#ffffff"]');
+        const progresses = document.querySelectorAll('table[class="form_list"] tbody')[1]
+        	.querySelectorAll('tr[bgcolor="#ffffff"]');
 
         const shippingInformation = {
         	from: {
@@ -45,26 +53,29 @@ function getTrack(trackId) {
         	progresses: []
         }
         progresses.forEach(element => {
-        	shippingInformation.progresses.push({
-        		time: element.querySelector('td[class="linel2 ac"]').textContent,
-        		location: element.querySelectorAll('td[class="ac"]')[0].textContent,
-        		status: element.querySelectorAll('td[class="ac"]')[1].textContent,
-        		description: element.querySelector('td[class="pl10"]').textContent
+        	const td = element.querySelectorAll('td');
+        	
+        	shippingInformation.progresses.unshift({
+        		time: `${td[0].textContent.slice(0, -5).replace(' ', 'T')}:00+09:00`,
+        		location: td[2].textContent,
+        		status: td[4].textContent,
+        		description: td[6].textContent
         	});
         });
-        shippingInformation.state.id = shippingInformation.progresses[shippingInformation.progresses.length - 1].status;
-        shippingInformation.state.text = shippingInformation.progresses[shippingInformation.progresses.length - 1].description;
+        const status = parseStatus(shippingInformation.progresses[0].status);
+
+        shippingInformation.state.id = status.id;
+        shippingInformation.state.text = status.text;
         resolve(shippingInformation);
-        
       })
     }).catch(err => reject(err));
   });
 }
 
-module.export = {
+module.exports = {
   info: {
     name: '성원글로벌카고',
     tel: "+82327469984",
   },
-  getTrack: getTrack,
+  getTrack,
 }
