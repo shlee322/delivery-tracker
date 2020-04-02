@@ -68,10 +68,12 @@ function getTrack(trackId) {
         };
 
         if (shippingInformation.progresses.length < 1) {
-          shippingInformation.state = {
-            id: 'information_received',
-            text: '방문예정',
-          };
+          const errorTd = progressTable.querySelector('tbody > tr > td');
+          reject({
+            code: 404,
+            message: errorTd ? errorTd.textContent : "화물추적 내역이 없습니다.",
+          });
+          return;
         } else {
           shippingInformation.state =
             shippingInformation.progresses[
