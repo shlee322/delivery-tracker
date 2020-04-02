@@ -49,7 +49,7 @@ jobs:
       skip_cleanup: true
       github_token: "$GITHUB_TOKEN"
       keep_history: true
-      local_dir: client/dist
+      local_dir: packages/client/dist
       target_branch: gh-pages
     after_script:
     - cd ..
