@@ -1,28 +1,18 @@
 /* eslint-disable */
 const assert = require('assert');
 
-const testCase = [
-  { carrier: 'kr.cjlogistics', trackId: '0000000000' },
-  { carrier: 'kr.cjlogistics', trackId: '123456789012', errorCode: 404 },
-  // { carrier: 'kr.cvsnet', trackId: '1111111111' }, // TODO : need an available trackId
-  { carrier: 'kr.cvsnet', trackId: '0123456789', errorCode: 404 },
-  { carrier: 'kr.epost', trackId: '1234567890123' },
-  { carrier: 'kr.epost', trackId: '1231231231231', errorCode: 404 },
-  { carrier: 'kr.hanjin', trackId: '0000000000' },
-  { carrier: 'kr.hanjin', trackId: '0123456782', errorCode: 404 },
-  // { carrier: 'kr.logen', trackId: '00000000000' }, // TODO : need an available trackId
-  // { carrier: 'kr.logen', trackId: '12345678901', errorCode: 404 }, // TODO : need an available trackId
-  // { carrier: 'kr.lotte', trackId: '000000000000' }, // TODO : need an available trackId
-  { carrier: 'kr.lotte', trackId: '1234567890123', errorCode: 404 },
-  // TODO : add kr.cway test code
-];
-
 function testTrackInfo(testTarget, info, done) {
   done();
 }
 
 describe('Carrier', function() {
   describe('getTrack', function() {
+    /*
+    TRACKING_TEST_CASE Env Example
+    TRACKING_TEST_CASE="[{\"carrier\":\"kr.cjlogistics\",\"trackId\":\"0000000000\"},{\"carrier\":\"kr.cjlogistics\",\"trackId\":\"123456789012\",\"errorCode\":404}]"
+    */
+    assert.notStrictEqual(process.env.TRACKING_TEST_CASE, undefined, 'required process.env.TRACKING_TEST_CASE');
+    const testCase = JSON.parse(process.env.TRACKING_TEST_CASE);
     testCase.forEach(testTarget => {
       it(testTarget.carrier, done => {
         require(`../carriers/${testTarget.carrier}`)
