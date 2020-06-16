@@ -1,6 +1,8 @@
 # Delivery Tracker
 [![Build Status](https://travis-ci.org/shlee322/delivery-tracker.svg?branch=master)](https://travis-ci.org/shlee322/delivery-tracker)
 
+![IMAGE](./packages/client/static/logo-320x240.png)
+
 Delivery and Shipping Tracking Service
 
 ## Usage
