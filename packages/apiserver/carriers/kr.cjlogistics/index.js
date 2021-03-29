@@ -11,6 +11,7 @@ const STATUS_MAP = {
   44: { id: 'in_transit', text: '상품이동중' },
   82: { id: 'out_for_delivery', text: '배송출발' },
   91: { id: 'delivered', text: '배달완료' },
+  RMN: { id: 'at_hub', text: 'HUB도착' },
 };
 
 function parseTime(s) {
