@@ -111,6 +111,9 @@ function getTrack(trackId) {
                   ].time
                 : null,
           };
+
+          shippingInformation.originTrackNo = informationTable[0].oriTrspbillnum || null;
+          shippingInformation.returnTrackNo = informationTable[0].rtnTrspbillnum || null;
         }
 
         resolve(shippingInformation);
