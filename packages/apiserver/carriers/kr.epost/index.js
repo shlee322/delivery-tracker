@@ -46,7 +46,7 @@ function getTrack(trackId) {
         const entities = new Entities();
 
         const from = entities.decode($informations.eq(0).html()).split('<br>');
-        const to = entities.decode($informations.eq(1).html()).split('<br>');
+        const to = entities.decode($informations.eq(2).html()).split('<br>');
 
         // const from = informations[0].innerHTML.split('<br>')
         // const to = informations[1].innerHTML.split('<br>')
