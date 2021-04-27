@@ -9,6 +9,7 @@ function parseStatus(s) {
   if (s.includes('배달준비'))
     return { id: 'out_for_delivery', text: '배송출발' };
   if (s.includes('배달완료')) return { id: 'delivered', text: '배송완료' };
+  if (s.includes('신청취소')) return { id: 'canceled', text: '취소' };
   return { id: 'in_transit', text: '이동중' };
 }
 
