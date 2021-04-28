@@ -5,7 +5,6 @@ const STATUS_ID_MAP = {
   영업소상차: 'at_pickup',
   배송출발: 'out_for_delivery',
   배달차량상차: 'out_for_delivery',
-  영업소도착: 'out_for_delivery',
   배송완료: 'delivered',
   배달완료: 'delivered',
 };
