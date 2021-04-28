@@ -100,6 +100,19 @@ function getTrack(trackId) {
           ) {
             return;
           }
+          const status = parseStatus(td.eq(2).text());
+          if (status && status.id === 'out_for_delivery') {
+            shippingInformation.courier = {
+              name: td
+                .eq(6)
+                .text()
+                .trim(),
+              contact: td
+                .eq(7)
+                .text()
+                .trim(),
+            };
+          }
           shippingInformation.progresses.push({
             time: `${td
               .eq(0)
@@ -109,7 +122,7 @@ function getTrack(trackId) {
             location: {
               name: td.eq(1).text(),
             },
-            status: parseStatus(td.eq(2).text()),
+            status,
             description: tdToDescription(td, $),
           });
         });
