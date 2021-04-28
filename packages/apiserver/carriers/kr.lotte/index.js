@@ -58,7 +58,7 @@ function getTrack(trackId) {
                 status: parseStatus(tds[0].textContent),
                 time: `${tds[1].textContent.replace(/\s+/g, 'T')}:00+09:00`,
                 location: {
-                  name: tds[2].textContent,
+                  name: tds[2].textContent.trim(),
                 },
                 description: tds[3].textContent,
               });
@@ -71,9 +71,10 @@ function getTrack(trackId) {
           const errorTd = progressTable.querySelector('tbody > tr > td');
           reject({
             code: 404,
-            message: errorTd ? errorTd.textContent : "화물추적 내역이 없습니다.",
+            message: errorTd
+              ? errorTd.textContent
+              : '화물추적 내역이 없습니다.',
           });
-          return;
         } else {
           shippingInformation.state =
             shippingInformation.progresses[
