@@ -93,6 +93,7 @@ function getTrack(trackId) {
                 shippingInformation.progresses.length - 1
               ].time;
         }
+        shippingInformation.progresses = shippingInformation.progresses.reverse()
 
         resolve(shippingInformation);
       })
