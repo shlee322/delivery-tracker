@@ -4,6 +4,8 @@ const STATUS_ID_MAP = {
   집하입고: 'at_pickup',
   영업소상차: 'at_pickup',
   배송출발: 'out_for_delivery',
+  배달차량상차: 'out_for_delivery',
+  영업소도착: 'out_for_delivery',
   배송완료: 'delivered',
   배달완료: 'delivered',
 };
@@ -63,6 +65,11 @@ function getTrack(trackId) {
           shippingInformation.state = lastProgress.status;
           if (lastProgress.status.id === 'delivered')
             shippingInformation.to.time = lastProgress.time;
+          const lastItem = res.data.items[res.data.items.length - 1];
+          shippingInformation.courier = {
+            name: lastItem.location,
+            contact: lastItem.tel,
+          };
         }
 
         resolve(shippingInformation);
