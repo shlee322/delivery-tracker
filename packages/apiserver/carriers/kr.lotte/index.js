@@ -10,6 +10,8 @@ const parseStatus = s => {
   return { id: 'in_transit', text: '이동중' };
 };
 
+const courierPattern = /.+\(배송담당:\s+(\S+) ([\d|-]+)\)/;
+
 function getTrack(trackId) {
   return new Promise((resolve, reject) => {
     axios
@@ -92,8 +94,23 @@ function getTrack(trackId) {
               shippingInformation.progresses[
                 shippingInformation.progresses.length - 1
               ].time;
+          const outForDelivery = shippingInformation.progresses.find(
+            progress =>
+              progress.status && progress.status.id === 'out_for_delivery'
+          );
+          if (outForDelivery) {
+            const courierResult = courierPattern.exec(
+              outForDelivery.description
+            );
+            if (courierResult && courierResult.length === 3) {
+              shippingInformation.courier = {
+                name: courierResult[1].trim(),
+                contact: courierResult[2].trim(),
+              };
+            }
+          }
         }
-        shippingInformation.progresses = shippingInformation.progresses.reverse()
+        shippingInformation.progresses = shippingInformation.progresses.reverse();
 
         resolve(shippingInformation);
       })
