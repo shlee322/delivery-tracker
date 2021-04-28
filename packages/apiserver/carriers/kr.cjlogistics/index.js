@@ -13,6 +13,8 @@ const STATUS_MAP = {
   91: { id: 'delivered', text: '배달완료' },
 };
 
+const courierPattern = /.+\(\S+:(\S+) ([\d|-]+)\)/;
+
 function parseTime(s) {
   return `${s.replace(' ', 'T').substring(0, s.lastIndexOf('.'))}+09:00`;
 }
@@ -95,11 +97,10 @@ function getTrack(trackId) {
               progress.status && progress.status.id === 'out_for_delivery'
           );
           if (outForDelivery) {
-            const courierPattern = /.+\(\S+:(\S+) ([\d|-]+)\)/;
             const courierResult = courierPattern.exec(
               outForDelivery.description
             );
-            if (courierResult && courierResult.length == 3) {
+            if (courierResult && courierResult.length === 3) {
               shippingInformation.courier = {
                 name: courierResult[1].trim(),
                 contact: courierResult[2].trim(),
