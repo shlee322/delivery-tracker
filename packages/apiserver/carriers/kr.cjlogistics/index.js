@@ -90,6 +90,22 @@ function getTrack(trackId) {
             shippingInformation.progresses[
               shippingInformation.progresses.length - 1
             ].status;
+          const outForDelivery = shippingInformation.progresses.find(
+            progress =>
+              progress.status && progress.status.id === 'out_for_delivery'
+          );
+          if (outForDelivery) {
+            const courierPattern = /.+\(\S+:(\S+) ([\d|-]+)\)/;
+            const courierResult = courierPattern.exec(
+              outForDelivery.description
+            );
+            if (courierResult && courierResult.length == 3) {
+              shippingInformation.courier = {
+                name: courierResult[1].trim(),
+                contact: courierResult[2].trim(),
+              };
+            }
+          }
         }
 
         if (informationTable.length !== 0) {
