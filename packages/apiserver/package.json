@@ -24,6 +24,7 @@
     "cheerio": "^1.0.0-rc.2",
     "cors": "^2.8.4",
     "express": "^4.16.3",
+    "form-data": "^4.0.0",
     "html-entities": "^1.2.1",
     "i18n": "^0.8.5",
     "iconv": "^2.3.0",

@@ -3,6 +3,7 @@ const cheerio = require('cheerio');
 const Entities = require('html-entities').XmlEntities;
 // const { JSDOM } = require('jsdom')
 const qs = require('querystring');
+const FormData = require('form-data');
 
 function parseStatus(s) {
   if (s.includes('집하완료')) return { id: 'at_pickup', text: '상품인수' };
@@ -11,6 +12,67 @@ function parseStatus(s) {
   if (s.includes('배달완료')) return { id: 'delivered', text: '배송완료' };
   if (s.includes('신청취소')) return { id: 'canceled', text: '취소' };
   return { id: 'in_transit', text: '이동중' };
+}
+
+function getCourier(tr) {
+  const fncDetailInfoLink = tr.find(`a[href^="javascript:fncDetailInfo("]`);
+  if (fncDetailInfoLink.length) {
+    const detailHref = fncDetailInfoLink.attr('href');
+    const detailScript = detailHref.replace(
+      // eslint-disable-next-line no-script-url
+      'javascript:fncDetailInfo',
+      'fncDetailInfo'
+    );
+    // eslint-disable-next-line no-new-func
+    const fn = new Function(`function fncDetailInfo(RegiNo, DelivYmd, type, EventPocd, delivSeq, delivRdCnt, delivDoneCnt) {
+  return {
+    RegiNo: RegiNo,
+    DelivYmd: DelivYmd,
+    type: type,
+    EventPocd: EventPocd,
+    delivSeq: delivSeq,
+    delivRdCnt: delivRdCnt,
+    delivDoneCnt: delivDoneCnt
+  }
+};
+return ${detailScript}`);
+    const detailInfo = fn();
+    return new Promise((resolve, reject) => {
+      const form = new FormData();
+      form.append(
+        'target_command',
+        'kpl.tts.tt.fmt.cmd.RetrieveCmsDetailInfoCMD'
+      );
+      form.append('JspURI', '/xtts/tt/epost/trace/sttfmt03p09.jsp');
+      form.append('RegiNo', detailInfo.RegiNo);
+      form.append('DelivYmd', detailInfo.DelivYmd);
+      form.append('EventPocd', detailInfo.EventPocd);
+      form.append('delivSeq', detailInfo.delivSeq);
+      form.append('delivRdCnt', 0);
+      form.append('delivDoneCnt', 0);
+      form.append('pageNo', 1);
+      form.append('pageSize', 10);
+      axios
+        .post(
+          'https://trace.epost.go.kr/xtts/servlet/kpl.tts.common.svl.VisSVL',
+          form,
+          { headers: form.getHeaders() }
+        )
+        .then(res => {
+          const $ = cheerio.load(res.data);
+          console.log(res);
+          const courierName = $('table tbody tr td:nth-child(4)')
+            .text()
+            .trim();
+          const courierContact = $('table tbody tr td:nth-child(5)')
+            .text()
+            .trim();
+          resolve({ name: courierName, contact: courierContact });
+        })
+        .catch(err => reject(err));
+    });
+  }
+  return null;
 }
 
 function getTrack(trackId) {
@@ -85,8 +147,11 @@ function getTrack(trackId) {
           progresses: [],
         };
 
+        let courierPromise;
+
         $progressTable.find('tr').each((_, element) => {
-          const td = $(element).find('td');
+          const tr = $(element);
+          const td = tr.find('td');
           if (td.length === 0) {
             return;
           }
@@ -105,6 +170,10 @@ function getTrack(trackId) {
             status: parseStatus(td.eq(3).text()),
             description: trimString(td.eq(3).text()),
           });
+          const courier = getCourier(tr);
+          if (courier) {
+            courierPromise = courier;
+          }
         });
 
         if (shippingInformation.progresses.length > 0)
@@ -117,8 +186,14 @@ function getTrack(trackId) {
             id: 'information_received',
             text: '방문예정',
           };
-
-        resolve(shippingInformation);
+        if (courierPromise) {
+          courierPromise.then(courier => {
+            shippingInformation.courier = courier;
+            resolve(shippingInformation);
+          });
+        } else {
+          resolve(shippingInformation);
+        }
       })
       .catch(err => reject(err));
   });
