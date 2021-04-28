@@ -2,6 +2,7 @@ const axios = require('axios');
 
 const STATUS_ID_MAP = {
   접수완료: 'information_received',
+  배달차량상차: 'out_for_delivery',
   배송완료: 'delivered',
 };
 
@@ -60,6 +61,11 @@ function getTrack(trackId) {
           shippingInformation.state = lastProgress.status;
           if (lastProgress.status.id === 'delivered')
             shippingInformation.to.time = lastProgress.time;
+          const lastItem = res.data.items[res.data.items.length - 1];
+          shippingInformation.courier = {
+            name: lastItem.location,
+            contact: lastItem.tel,
+          };
         }
 
         resolve(shippingInformation);
