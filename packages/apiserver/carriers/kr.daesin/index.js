@@ -4,6 +4,7 @@ const { JSDOM } = require('jsdom');
 const qs = require('querystring');
 
 const iconv = new Iconv('EUC-KR', 'UTF-8//TRANSLIT//IGNORE');
+const outForDeliveryLocationTypePattern = /도착취급점/;
 
 function getTrack(trackId) {
   const trimString = s => {
@@ -58,23 +59,38 @@ function getTrack(trackId) {
         progresses.forEach(element => {
           const tds = element.querySelectorAll('td');
 
+          const location = trimString(tds[1].textContent);
+          const contact = trimString(tds[2].textContent);
+
           shippingInformation.progresses.push({
             time: `${tds[3].textContent.replace(' ', 'T')}:00+09:00`,
             location: {
-              name: trimString(tds[1].textContent),
+              name: location,
             },
-            description: `연락처: ${trimString(tds[2].textContent)}`,
+            description: `연락처: ${contact}`,
             status: { id: 'in_transit', text: '배송중' },
           });
+
+          const locationType = trimString(tds[0].textContent);
+
+          if (
+            locationType.match(outForDeliveryLocationTypePattern) &&
+            contact
+          ) {
+            shippingInformation.courier = {
+              name: `${location} ${locationType}`,
+              contact,
+            };
+          }
 
           if (!tds[4].textContent) return;
 
           shippingInformation.progresses.push({
             time: `${tds[4].textContent.replace(' ', 'T')}:00+09:00`,
             location: {
-              name: trimString(tds[1].textContent),
+              name: location,
             },
-            description: `연락처: ${trimString(tds[2].textContent)}`,
+            description: `연락처: ${contact}`,
             status:
               tds[5].textContent.indexOf('배송완료') !== -1
                 ? { id: 'delivered', text: '배송완료' }
