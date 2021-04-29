@@ -51,17 +51,19 @@ function getTrack(trackId) {
           progresses: [],
         };
 
+        let contact;
+
         progresses.forEach(element => {
           const tds = element.querySelectorAll('td');
+          contact = trimString(tds[4].textContent);
 
           shippingInformation.progresses.push({
             time: `${trimString(tds[0].textContent)}T${trimString(
               tds[1].textContent
             )}:00+09:00`,
             location: { name: trimString(tds[3].textContent) },
-            description: trimString(tds[4].textContent)
-              ? `연락처: ${trimString(tds[4].textContent)}`
-              : undefined,
+            description: contact ? `연락처: ${contact}` : undefined,
+            contact,
             status: {
               id: STATUS_ID_MAP[trimString(tds[2].textContent)] || 'in_transit',
               text: trimString(tds[2].textContent),
@@ -77,6 +79,10 @@ function getTrack(trackId) {
           shippingInformation.state = lastProgress.status;
           if (lastProgress.status.id === 'delivered')
             shippingInformation.to.time = lastProgress.time;
+          shippingInformation.courier = {
+            name: lastProgress.location.name,
+            contact,
+          };
         }
 
         resolve(shippingInformation);
