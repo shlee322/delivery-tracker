@@ -131,17 +131,17 @@ function getTrack(trackId) {
             ),
           });
         }
-
+        console.log('from[1]', from[1]);
         const shippingInformation = {
           from: {
             name: from[0],
-            time: from[0]
+            time: from[1]
               ? `${from[1].replace(/\./g, '-')}T00:00:00+09:00`
-              : '',
+              : null,
           },
           to: {
             name: to[0],
-            time: to[0] ? `${to[1].replace(/\./g, '-')}T00:00:00+09:00` : '',
+            time: to[1] ? `${to[1].replace(/\./g, '-')}T00:00:00+09:00` : null,
           },
           state: null,
           progresses: [],
