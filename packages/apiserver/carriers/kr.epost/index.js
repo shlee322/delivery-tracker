@@ -131,7 +131,6 @@ function getTrack(trackId) {
             ),
           });
         }
-        console.log('from[1]', from[1]);
         const shippingInformation = {
           from: {
             name: from[0],
