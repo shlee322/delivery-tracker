@@ -1,6 +1,6 @@
 {
   "name": "delivery-tracker-apiserver",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "Delivery and Shipping Tracking Service - API Server",
   "homepage": "https://github.com/shlee322/delivery-tracker",
   "bugs": {
