@@ -58,15 +58,18 @@ function getTrack(trackId) {
         progresses.forEach(element => {
           const tds = element.querySelectorAll('td');
 
-          shippingInformation.progresses.push({
-            time: `${tds[0].textContent}T00:00:00+09:00`,
-            location: { name: tds[1].textContent },
-            description: `연락처: ${tds[2].textContent}`,
-            status: {
-              id: STATUS_ID_MAP[tds[3].textContent] || 'in_transit',
-              text: tds[3].textContent,
-            },
-          });
+          const time = tds[0].textContent;
+          if (time) {
+            shippingInformation.progresses.push({
+              time: `${time}T00:00:00+09:00`,
+              location: { name: tds[1].textContent },
+              description: `연락처: ${tds[2].textContent}`,
+              status: {
+                id: STATUS_ID_MAP[tds[3].textContent] || 'in_transit',
+                text: tds[3].textContent,
+              },
+            });
+          }
         });
 
         const lastProgress =
