@@ -73,6 +73,7 @@ function initApp(app) {
       // eslint-disable-next-line no-underscore-dangle
       message: err.message ? err.message : res.__('error message'),
     });
+    next(err);
   });
 
   return app;
