@@ -62,6 +62,8 @@ function getTrack(trackId) {
           const location = trimString(tds[1].textContent);
           const contact = trimString(tds[2].textContent);
 
+          if (!tds[3].textContent) return;
+
           shippingInformation.progresses.push({
             time: `${tds[3].textContent.replace(' ', 'T')}:00+09:00`,
             location: {
