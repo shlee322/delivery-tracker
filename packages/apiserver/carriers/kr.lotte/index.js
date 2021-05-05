@@ -78,22 +78,18 @@ function getTrack(trackId) {
               : '화물추적 내역이 없습니다.',
           });
         } else {
-          shippingInformation.state =
+          shippingInformation.progresses = shippingInformation.progresses.reverse();
+          const firstProgress = shippingInformation.progresses[0];
+          const lastProgress =
             shippingInformation.progresses[
               shippingInformation.progresses.length - 1
-            ].status;
-          shippingInformation.from.time =
-            shippingInformation.progresses[0].time;
+            ];
+          shippingInformation.state = lastProgress.status;
+          shippingInformation.from.time = firstProgress.time;
 
-          if (
-            shippingInformation.progresses[
-              shippingInformation.progresses.length - 1
-            ].status.id === 'delivered'
-          )
-            shippingInformation.to.time =
-              shippingInformation.progresses[
-                shippingInformation.progresses.length - 1
-              ].time;
+          if (lastProgress.status.id === 'delivered') {
+            shippingInformation.to.time = lastProgress.time;
+          }
           const outForDelivery = shippingInformation.progresses.find(
             progress =>
               progress.status && progress.status.id === 'out_for_delivery'
@@ -110,7 +106,6 @@ function getTrack(trackId) {
             }
           }
         }
-        shippingInformation.progresses = shippingInformation.progresses.reverse();
 
         resolve(shippingInformation);
       })
