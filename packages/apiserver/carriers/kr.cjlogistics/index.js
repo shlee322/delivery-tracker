@@ -107,6 +107,12 @@ function getTrack(trackId) {
               };
             }
           }
+          const delivered = shippingInformation.progresses.find(
+            progress => progress.status && progress.status.id === 'delivered'
+          );
+          if (delivered) {
+            shippingInformation.state = delivered.status;
+          }
         }
 
         if (informationTable.length !== 0) {
