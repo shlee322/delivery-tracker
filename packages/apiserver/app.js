@@ -28,6 +28,9 @@ function initApp(app) {
   }));
 
   app.get('/carriers', (req, res) => {
+    if(req.timedout) {
+      return;
+    }
     res.json(CARRIERS_INFOS);
   });
 
@@ -36,6 +39,10 @@ function initApp(app) {
       const error = new Error('not supported carrier');
       error.code = 404;
       throw error;
+    }
+
+    if(req.timedout) {
+      return;
     }
 
     res.json({
@@ -55,7 +62,10 @@ function initApp(app) {
 
     CARRIERS[carrierId]
       .getTrack(trackId)
-      .then(info =>
+      .then(info => {
+        if (req.timedout) {
+          return;
+        }
         res.status(200).json({
           ...info,
           carrier: {
@@ -63,12 +73,16 @@ function initApp(app) {
             ...CARRIERS[carrierId].info,
           },
         })
-      )
+      })
       .catch(err => next(err));
   });
 
   // eslint-disable-next-line no-unused-vars
   app.use(function(err, req, res, next) {
+    if (req.timedout) {
+      next(err);
+      return;
+    }
     const status = Number(err.code);
     res.status(status || 500).json({
       // eslint-disable-next-line no-underscore-dangle
