@@ -72,6 +72,9 @@ function getTrack(trackId) {
 
         progressTable.querySelectorAll('tr').forEach(element => {
           const insideTd = element.querySelectorAll('th, td');
+          if(insideTd.length < 3) {
+            return;
+          }
           // TODO : time 년도 처리 나중에 수정 해야 함 (현재 시간하고 마지막 시간하고 비교해서 마지막 시간이 미래면 작년 껄로 처리)
           const curTime = new Date();
           let time = `${curTime.getFullYear()}-${insideTd[0].innerHTML
