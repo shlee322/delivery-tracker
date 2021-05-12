@@ -1,4 +1,5 @@
 const axios = require('axios');
+const cookieParser = require('set-cookie-parser');
 
 function getTime(location, date, time) {
   // WARNING : Timezone is ignored.
@@ -26,76 +27,91 @@ function getTrack(trackId) {
   // const trimString = s => {
   //   return s.replace(/([\n\t]{1,}|\s{2,})/g, ' ').trim();
   // };
-
   return new Promise((resolve, reject) => {
-    axios
-      .post('https://www.ups.com/track/api/Track/GetStatus?loc=en_US', {
-        Locale: 'en_US',
-        TrackingNumber: [trackId],
-      })
-      .then(res => {
-        if (
-          res.data.statusCode !== '200' ||
-          res.data.trackDetails[0].errorCode
-        ) {
-          reject({
-            code: 404,
-            message: res.data.trackDetails
-              ? res.data.trackDetails[0].errorText
-              : res.data.statusText,
+    axios.get('https://www.ups.com/track?loc=en_US&requester=ST/')
+      .then(r => {
+        const setCookies = r.headers['set-cookie'];
+        const cookies = cookieParser.parse(r, {map: true})
+        axios
+          .post('https://www.ups.com/track/api/Track/GetStatus?loc=en_US', {
+            Locale: 'en_US',
+            TrackingNumber: [trackId],
+          }, {
+            headers: {
+              'Cookie': setCookies,
+              'Content-Type': 'application/json',
+              'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36',
+              'Referer': "https://www.ups.com/track?loc=ko_KR&requester=ST/",
+              'X-XSRF-TOKEN': cookies['X-XSRF-TOKEN-ST'].value
+            }
+          })
+          .then(res => {
+            if (
+              res.data.statusCode !== '200' ||
+              res.data.trackDetails[0].errorCode
+            ) {
+              reject({
+                code: 404,
+                message: res.data.trackDetails
+                  ? res.data.trackDetails[0].errorText
+                  : res.data.statusText,
+              });
+              return;
+            }
+
+            const info = res.data.trackDetails[0];
+
+            const shippingInformation = {
+              from: {},
+              to: {},
+              state: {id: 'information_received', text: 'information received'},
+              progresses: [],
+            };
+
+            info.shipmentProgressActivities.forEach(event => {
+              const eventInfo = {
+                time: getTime(event.location, event.date, event.time),
+                status: {
+                  id: parseStatusId(event.milestone ? event.milestone.name : null),
+                  text: event.activityScan,
+                },
+                location: {name: event.location},
+              };
+
+              if (
+                !shippingInformation.from.time &&
+                eventInfo.status.id === 'at_pickup'
+              ) {
+                shippingInformation.from = {
+                  time: eventInfo.time,
+                  address: event.location,
+                };
+              }
+
+              shippingInformation.progresses.unshift(eventInfo);
+            });
+
+            const lastProgress =
+              shippingInformation.progresses[
+              shippingInformation.progresses.length - 1
+                ];
+            if (lastProgress) {
+              shippingInformation.state = lastProgress.status;
+              if (lastProgress.status.id === 'delivered') {
+                shippingInformation.to = {
+                  time: lastProgress.time,
+                  address: lastProgress.location,
+                };
+              }
+            }
+
+            resolve(shippingInformation);
+          })
+          .catch(err => {
+            //console.log(err)
+            reject(err)
           });
-          return;
-        }
-
-        const info = res.data.trackDetails[0];
-
-        const shippingInformation = {
-          from: {},
-          to: {},
-          state: { id: 'information_received', text: 'information received' },
-          progresses: [],
-        };
-
-        info.shipmentProgressActivities.forEach(event => {
-          const eventInfo = {
-            time: getTime(event.location, event.date, event.time),
-            status: {
-              id: parseStatusId(event.milestone ? event.milestone.name : null),
-              text: event.activityScan,
-            },
-            location: { name: event.location },
-          };
-
-          if (
-            !shippingInformation.from.time &&
-            eventInfo.status.id === 'at_pickup'
-          ) {
-            shippingInformation.from = {
-              time: eventInfo.time,
-              address: event.location,
-            };
-          }
-
-          shippingInformation.progresses.unshift(eventInfo);
-        });
-
-        const lastProgress =
-          shippingInformation.progresses[
-            shippingInformation.progresses.length - 1
-          ];
-        if (lastProgress) {
-          shippingInformation.state = lastProgress.status;
-          if (lastProgress.status.id === 'delivered') {
-            shippingInformation.to = {
-              time: lastProgress.time,
-              address: lastProgress.location,
-            };
-          }
-        }
-
-        resolve(shippingInformation);
-      })
-      .catch(err => reject(err));
+      });
   });
 }
 

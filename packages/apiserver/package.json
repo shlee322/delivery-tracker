@@ -30,12 +30,13 @@
     "iconv": "^2.3.0",
     "jsdom": "^13.0.0",
     "request": "^2.85.0",
+    "set-cookie-parser": "^2.4.8",
     "ssl-root-cas": "^1.2.5",
     "tough-cookie": "^2.3.4"
   },
   "devDependencies": {
-    "nodemon": "^2.0.2",
     "eslint": "^5.9.0",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "nodemon": "^2.0.2"
   }
 }
