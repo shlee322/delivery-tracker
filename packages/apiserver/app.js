@@ -79,10 +79,6 @@ function initApp(app) {
 
   // eslint-disable-next-line no-unused-vars
   app.use(function(err, req, res, next) {
-    if (req.timedout) {
-      next(err);
-      return;
-    }
     const status = Number(err.code);
     res.status(status || 500).json({
       // eslint-disable-next-line no-underscore-dangle
