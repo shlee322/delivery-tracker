@@ -127,21 +127,19 @@ function getTrack(trackId) {
           });
         });
 
-        shippingInformation.state =
-          shippingInformation.progresses[
-            shippingInformation.progresses.length - 1
-          ].status;
-
         shippingInformation.from.time = shippingInformation.progresses[0].time;
-        if (
-          shippingInformation.progresses[
-            shippingInformation.progresses.length - 1
-          ].status.id === 'delivered'
-        )
-          shippingInformation.to.time =
+        const delivered = shippingInformation.progresses.find(
+          progress => progress.status && progress.status.id === 'delivered'
+        );
+        if (delivered) {
+          shippingInformation.to.time = delivered.time;
+          shippingInformation.state = delivered.status;
+        } else {
+          shippingInformation.state =
             shippingInformation.progresses[
               shippingInformation.progresses.length - 1
-            ].time;
+            ].status;
+        }
 
         resolve(shippingInformation);
       })
