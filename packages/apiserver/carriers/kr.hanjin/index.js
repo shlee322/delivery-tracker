@@ -1,9 +1,12 @@
 const axios = require('axios');
 const { JSDOM } = require('jsdom');
 const qs = require('querystring');
+const Iconv = require('iconv').Iconv;
+const iconv = new Iconv('EUC-KR', 'UTF-8');
 
 function parseStatus(s) {
-  if (s.includes('집하')) return { id: 'at_pickup', text: '상품인수' };
+  if (s.includes('화물접수')) return { id: 'at_pickup', text: '상품인수' };
+  if (s.includes('화물입고')) return { id: 'at_pickup', text: '상품인수' };
   if (s.includes('배송출발'))
     return { id: 'out_for_delivery', text: '배송출발' };
   if (s.includes('배송완료')) return { id: 'delivered', text: '배송완료' };
@@ -31,36 +34,30 @@ function getTrack(trackId) {
     }
 
     axios
-      .post(
-        'https://m.hanex.hanjin.co.kr/inquiry/incoming/resultWaybill',
-        qs.stringify({
-          div: 'B',
-          show: 'true',
-          wblNum: trackId,
+      .get(
+        `http://www.hanjinexpress.hanjin.net/customer/hddcw99gm.cgo_iframe?w_num=${trackId}`,{
+          responseType: 'arraybuffer'
         })
-      )
       .then(res => {
         const dom = new JSDOM(res.data);
-        const tables = dom.window.document.querySelectorAll('table');
-        if (tables.length === 0) {
+        const rows = dom.window.document.querySelectorAll('table tr');
+        if (rows.length === 0) {
           return reject({
             code: 404,
-            message: dom.window.document.querySelector('.noData').textContent,
+            message: '내역이 존재하지 않습니다',
           });
         }
 
-        return { informationTable: tables[0], progressTable: tables[1] };
+        return { rows };
       })
-      .then(({ informationTable, progressTable }) => {
-        const td = informationTable.querySelectorAll('td');
-
+      .then(({ rows }) => {
         const shippingInformation = {
           from: {
-            name: td[1].textContent,
+            name: '',
             time: null,
           },
           to: {
-            name: td[2].textContent,
+            name: '',
             time: null,
           },
           state: {
@@ -70,29 +67,23 @@ function getTrack(trackId) {
           progresses: [],
         };
 
-        progressTable.querySelectorAll('tr').forEach(element => {
+        rows.forEach(element => {
           const insideTd = element.querySelectorAll('th, td');
-          if(insideTd.length < 3) {
+          if(insideTd.length < 4) {
             return;
           }
-          // TODO : time 년도 처리 나중에 수정 해야 함 (현재 시간하고 마지막 시간하고 비교해서 마지막 시간이 미래면 작년 껄로 처리)
-          const curTime = new Date();
-          let time = `${curTime.getFullYear()}-${insideTd[0].innerHTML
-            .replace('<br>', 'T')
-            .replace(/<[^>]*>/gi, '')
-            .replace(/\./gi, '-')}:00+09:00`;
 
-          if (new Date(time) > curTime) {
-            time = `${curTime.getFullYear() - 1}${time.substring(4)}`;
-          }
+          const timeText = insideTd[0].textContent.trim();
+          const time = timeText.replace(/\./g, '-')
+            .replace(/\s/g, 'T') + ':00+09:00'
 
-          shippingInformation.progresses.unshift({
+          shippingInformation.progresses.push({
             time,
             location: {
               name: insideTd[1].textContent,
             },
             status: parseStatus(insideTd[2].textContent),
-            description: insideTd[2].textContent,
+            description: insideTd[3].textContent,
           });
         });
 
