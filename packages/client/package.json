@@ -21,7 +21,7 @@
   "dependencies": {
     "@nuxtjs/axios": "^5.3.1",
     "axios": "^0.18.0",
-    "buefy": "^0.6.5",
+    "buefy": "^0.7.2",
     "libphonenumber-js": "^1.1.7",
     "nuxt": "^2.6.2",
     "nuxt-buefy": "^0.0.4",
