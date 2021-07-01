@@ -32,11 +32,12 @@ function getTrack(trackId) {
 
     axios
       .post(
-        'https://m.hanex.hanjin.co.kr/inquiry/incoming/resultWaybill',
+        'https://www.hanjin.co.kr/kor/CMS/DeliveryMgr/WaybillResult.do',
         qs.stringify({
-          div: 'B',
-          show: 'true',
-          wblNum: trackId,
+          mCode: 'MN038',
+          schLang: 'KR',
+          wblnum: this.trackingCode,
+          wblnumText: '',
         })
       )
       .then(res => {
