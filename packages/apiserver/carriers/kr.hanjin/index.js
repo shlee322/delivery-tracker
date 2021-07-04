@@ -30,9 +30,13 @@ function getTrack(trackId) {
     }
 
     axios
-      .get(
-        `https://www.hanjin.co.kr/kor/CMS/DeliveryMgr/WaybillResult.do?mCode=MN038&schLang=KR&wblnum=${trackId}`
-      )
+      .get('http://www.hanjin.co.kr/kor/CMS/DeliveryMgr/WaybillResult.do', {
+        params: {
+          mCode: 'MN038',
+          schLang: 'KR',
+          wblnum: trackId,
+        }
+      })
       .then(res => {
         const dom = new JSDOM(res.data);
         const tables = dom.window.document.querySelectorAll('table');
