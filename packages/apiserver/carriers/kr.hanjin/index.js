@@ -45,7 +45,8 @@ function getTrack(trackId) {
         }
 
         return { informationTable: tables[0], progressTable: tables[1] };
-      }).then(({ informationTable, progressTable }) => {
+      })
+      .then(({ informationTable, progressTable }) => {
 
         const td = informationTable.querySelectorAll('td');
 
