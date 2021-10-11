@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { JSDOM } = require('jsdom');
-const qs = require('querystring');
+const { Iconv } = require('iconv');
+const iconv = new Iconv('euc-kr', 'utf-8');
 
 function parseStatus(s) {
   if (s.includes('집하')) return { id: 'at_pickup', text: '상품인수' };
@@ -31,29 +32,27 @@ function getTrack(trackId) {
     }
 
     axios
-      .post(
-        'https://m.hanex.hanjin.co.kr/inquiry/incoming/resultWaybill',
-        qs.stringify({
-          div: 'B',
-          show: 'true',
-          wblNum: trackId,
-        })
-      )
+      .get('http://www.hanjinexpress.hanjin.net/customer/hddcw18.tracking', {
+        params: {
+          w_num: trackId,
+        },
+        responseType: 'arraybuffer'
+      })
       .then(res => {
-        const dom = new JSDOM(res.data);
+        const dom = new JSDOM(iconv.convert(res.data).toString());
         const tables = dom.window.document.querySelectorAll('table');
+        
         if (tables.length === 0) {
           return reject({
             code: 404,
             message: dom.window.document.querySelector('.noData').textContent,
           });
         }
-
         return { informationTable: tables[0], progressTable: tables[1] };
       })
       .then(({ informationTable, progressTable }) => {
-        const td = informationTable.querySelectorAll('td');
 
+        const td = informationTable.querySelectorAll('td');
         const shippingInformation = {
           from: {
             name: td[1].textContent,
@@ -70,45 +69,31 @@ function getTrack(trackId) {
           progresses: [],
         };
 
-        progressTable.querySelectorAll('tr').forEach(element => {
-          const insideTd = element.querySelectorAll('th, td');
-          // TODO : time 년도 처리 나중에 수정 해야 함 (현재 시간하고 마지막 시간하고 비교해서 마지막 시간이 미래면 작년 껄로 처리)
-          const curTime = new Date();
-          let time = `${curTime.getFullYear()}-${insideTd[0].innerHTML
-            .replace('<br>', 'T')
-            .replace(/<[^>]*>/gi, '')
-            .replace(/\./gi, '-')}:00+09:00`;
+        const { progresses } = shippingInformation;
 
-          if (new Date(time) > curTime) {
-            time = `${curTime.getFullYear() - 1}${time.substring(4)}`;
-          }
-
-          shippingInformation.progresses.unshift({
-            time,
+        progressTable.querySelector('tbody').querySelectorAll('tr').forEach(element => {
+          const insideTd = element.querySelectorAll('td');
+          const date = insideTd[0].textContent; // insideTd[0] - 날짜 (ex. 2021-04-13)
+          const time = insideTd[1].textContent; // insideTd[1] - 시간 (ex. 10:37)
+          const address = insideTd[2].textContent; // insideTd[2] - 위치
+          const description = insideTd[3].textContent.trim();// insideTd[3] - 설명
+          const timeSet = `${date}T${time}:00+09:00`;
+          
+          progresses.unshift({
+            time: timeSet,
             location: {
-              name: insideTd[1].textContent,
+              name: address,
             },
-            status: parseStatus(insideTd[2].textContent),
-            description: insideTd[2].textContent,
+            status: parseStatus(description),
+            description: description,
           });
         });
 
-        if (shippingInformation.progresses.length > 0) {
-          shippingInformation.state =
-            shippingInformation.progresses[
-              shippingInformation.progresses.length - 1
-            ].status;
-          shippingInformation.from.time =
-            shippingInformation.progresses[0].time;
-          if (
-            shippingInformation.progresses[
-              shippingInformation.progresses.length - 1
-            ].status.id === 'delivered'
-          )
-            shippingInformation.to.time =
-              shippingInformation.progresses[
-                shippingInformation.progresses.length - 1
-              ].time;
+        if (progresses.length > 0) {
+          shippingInformation.state = progresses[0].status;
+          shippingInformation.from.time = progresses[progresses.length - 1].time;
+          if (progresses[0].status.id === 'delivered')
+            shippingInformation.to.time = progresses[0].time;
         } else {
           shippingInformation.state = {
             id: 'information_received',
