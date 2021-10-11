@@ -20,7 +20,7 @@
   "author": "Sanghyeok Lee <shlee322@elab.kr>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.2",
     "cheerio": "^1.0.0-rc.2",
     "cors": "^2.8.4",
     "express": "^4.16.3",
