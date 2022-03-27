@@ -40,14 +40,19 @@ function getTrack(trackId) {
       })
       .then(res => {
         const dom = new JSDOM(iconv.convert(res.data).toString());
-        const tables = dom.window.document.querySelectorAll('table');
-        
-        if (tables.length === 0) {
-          return reject({
-            code: 404,
-            message: dom.window.document.querySelector('.noData').textContent,
-          });
+
+        const tit = dom.window.document.querySelector('.tit-sec');
+        if(tit) {
+          const message = tit.textContent.trim();
+          if (message.indexOf("운송장이 등록되지 않") !== -1) {
+            return reject({
+              code: 404,
+              message: message,
+            });
+          }
         }
+
+        const tables = dom.window.document.querySelectorAll('table');
         return { informationTable: tables[0], progressTable: tables[1] };
       })
       .then(({ informationTable, progressTable }) => {
