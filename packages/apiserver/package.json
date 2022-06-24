@@ -27,7 +27,7 @@
     "html-entities": "^1.2.1",
     "i18n": "^0.8.5",
     "iconv": "^2.3.0",
-    "jsdom": "^13.0.0",
+    "jsdom": "^16.5.0",
     "request": "^2.85.0",
     "ssl-root-cas": "^1.2.5",
     "tough-cookie": "^2.3.4"
