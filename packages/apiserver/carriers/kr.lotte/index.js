@@ -54,7 +54,7 @@ function getTrack(trackId) {
               if (tds.length < 4) return;
               if (tds[1].textContent.indexOf('--:--') !== -1) return;
 
-              result.push({
+              result.unshift({
                 status: parseStatus(tds[0].textContent),
                 time: `${tds[1].textContent.replace(/\s+/g, 'T')}:00+09:00`,
                 location: {
