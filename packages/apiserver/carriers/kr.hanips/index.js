@@ -21,14 +21,14 @@ function parseStatusId(s) {
 }
 
 function parseTime(s) {
-  const match = s.match(/^(.+) (\d\d):(\d\d)(AM|PM)$/i);
-  if (!match) return null;
-
-  if (match[4] === 'PM') {
-    match[2] = parseInt(match[2], 10) + 12;
-  }
-
-  return `${match[1]}T${match[2]}:${match[3]}:00+09:00`;
+  const time = new Date(s);
+  const year = time.getFullYear();
+  const month = (time.getMonth() + 1).toString().padStart(2, '0');
+  const date = time.getDate().toString().padStart(2, '0');
+  const hour = time.getHours().toString().padStart(2, '0');
+  const minute = time.getMinutes().toString().padStart(2, '0');
+  const second = time.getSeconds().toString().padStart(2, '0');
+  return `${year}-${month}-${date}T${hour}:${minute}:${second}+09:00`;
 }
 
 function getTrack(trackId) {
