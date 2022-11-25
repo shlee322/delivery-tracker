@@ -34,7 +34,7 @@ function getTrack(trackId) {
         // const informationTable = document.querySelector('.table_col:nth-child(2)')
         // const progressTable = document.querySelector('.table_col:nth-child(1)')
 
-        const $informationTable = $("#print").find('table');
+        const $informationTable = $('#print').find('table');
         const $progressTable = $('#processTable');
 
         return { $, $informationTable, $progressTable };
@@ -45,10 +45,8 @@ function getTrack(trackId) {
         const entities = new Entities();
 
         const from = entities.decode($informations.eq(0).html()).split('<br>');
-        const to = entities.decode($informations.eq(1).html()).split('<br>');
-
-        // const from = informations[0].innerHTML.split('<br>')
-        // const to = informations[1].innerHTML.split('<br>')
+        const toName = entities.decode($informations.eq(1).text()).trim();
+        const toTime = entities.decode($informations.eq(2).text()).trim();
 
         if ($informations.length === 0) {
           reject({
@@ -72,13 +70,13 @@ function getTrack(trackId) {
         const shippingInformation = {
           from: {
             name: from[0],
-            time: from[0]
+            time: from[1]
               ? `${from[1].replace(/\./g, '-')}T00:00:00+09:00`
               : '',
           },
           to: {
-            name: to[0],
-            time: to[0] ? `${to[1].replace(/\./g, '-')}T00:00:00+09:00` : '',
+            name: toName,
+            time: toTime ? `${toTime.replace(/\./g, '-')}T00:00:00+09:00` : '',
           },
           state: null,
           progresses: [],
