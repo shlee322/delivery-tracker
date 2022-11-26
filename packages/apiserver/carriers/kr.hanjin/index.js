@@ -50,6 +50,12 @@ function getTrack(trackId) {
               message: message,
             });
           }
+          if (message.indexOf("잘못된 운송장") !== -1) {
+            return reject({
+              code: 400,
+              message: message,
+            });
+          }
         }
 
         const tables = dom.window.document.querySelectorAll('table');
