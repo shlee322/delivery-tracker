@@ -45,8 +45,10 @@ function getTrack(trackId) {
         const entities = new Entities();
 
         const from = entities.decode($informations.eq(0).html()).split('<br>');
-        const toName = entities.decode($informations.eq(1).text()).trim();
-        const toTime = entities.decode($informations.eq(2).text()).trim();
+        const to = entities.decode($informations.eq(2).html()).split('<br>');
+        const toTime = to.at(-1);
+        const toName =
+          to.at(0) || entities.decode($informations.eq(1).text()).trim();
 
         if ($informations.length === 0) {
           reject({
@@ -70,7 +72,7 @@ function getTrack(trackId) {
         const shippingInformation = {
           from: {
             name: from[0],
-            time: from[1]
+            time: from[0]
               ? `${from[1].replace(/\./g, '-')}T00:00:00+09:00`
               : '',
           },
