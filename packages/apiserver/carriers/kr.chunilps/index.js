@@ -59,7 +59,7 @@ function getTrack(trackId) {
           const tds = element.querySelectorAll('td');
 
           shippingInformation.progresses.push({
-            time: `${tds[0].textContent}T00:00:00+09:00`,
+            time: `${tds[0].textContent.replace(' ', 'T')}+09:00`,
             location: { name: tds[1].textContent },
             description: `연락처: ${tds[2].textContent}`,
             status: {
