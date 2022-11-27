@@ -44,7 +44,9 @@ function getTrack(trackId) {
           shippingInformation.progresses.push({
             time:
               progress.reg_date !== '알수없음'
-                ? `${progress.reg_date.replace(' ', 'T')}+09:00`
+                ? `${progress.reg_date
+                    .replace(' ', 'T')
+                    .replace('.0', '')}+09:00`
                 : undefined,
             status: {
               id: STATUS_ID_MAP[progress.stat] || 'in_transit',
