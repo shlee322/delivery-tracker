@@ -6,7 +6,7 @@ const qs = require('querystring');
 const STATUS_MAP = {
   null: { id: 'information_received', text: '상품준비중' },
   11: { id: 'at_pickup', text: '상품인수' },
-  21: { id: 'in_transit', text: '상품이동중'},
+  21: { id: 'in_transit', text: '상품이동중' },
   41: { id: 'in_transit', text: '상품이동중' },
   42: { id: 'in_transit', text: '상품이동중' }, // 원래는 배송지 도착이지만 제공하지 않음 (표준화)
   44: { id: 'in_transit', text: '상품이동중' },
@@ -111,6 +111,12 @@ function getTrack(trackId) {
                   ].time
                 : null,
           };
+        }
+
+        const isDelivered = shippingInformation.state.id === 'delivered';
+        if (!shippingInformation.to.time && isDelivered) {
+          const deliveredProgress = shippingInformation.progresses.at(-1);
+          shippingInformation.to.time = deliveredProgress.time;
         }
 
         resolve(shippingInformation);
