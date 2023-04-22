@@ -8,7 +8,7 @@ const STATUS_ID_MAP = {
 function getTrack(trackId) {
   return new Promise((resolve, reject) => {
     axios
-      .get('https://kdexp.com/newDeliverySearch.kd', {
+      .get('https://kdexp.com/service/delivery/ajax_basic.do', {
         params: {
           barcode: trackId,
         },
