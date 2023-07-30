@@ -47,9 +47,9 @@ function getTrack(trackId) {
       .then(res => {
         const dom = new JSDOM(res.data);
 
-        const tit = dom.window.document.querySelector('.tit-sec');
-        if(tit) {
-          const message = tit.textContent.trim();
+        const comm = dom.window.document.querySelector('.comm-sec');
+        if(comm) {
+          const message = comm.textContent.trim();
           if (message.indexOf("운송장이 등록되지 않") !== -1) {
             return reject({
               code: 404,
@@ -90,29 +90,27 @@ function getTrack(trackId) {
 
         progressTable.querySelector('tbody').querySelectorAll('tr').forEach(element => {
           const insideTd = element.querySelectorAll('td');
-          // 간혹 <tr></tr> 형태가 섞여있음
-          if (insideTd.length < 4) return;
           const date = insideTd[0].textContent; // insideTd[0] - 날짜 (ex. 2021-04-13)
           const time = insideTd[1].textContent; // insideTd[1] - 시간 (ex. 10:37)
           const address = insideTd[2].textContent; // insideTd[2] - 위치
           const description = insideTd[3].textContent.trim();// insideTd[3] - 설명
           const timeSet = `${date}T${time}:00+09:00`;
           
-          progresses.unshift({
+          progresses.push({
             time: timeSet,
             location: {
               name: address,
             },
             status: parseStatus(description),
-            description: description,
+            description: description.replace(/[\n]/g, " ").replace(/\s{2,}/g, " ").trim(),
           });
         });
 
         if (progresses.length > 0) {
-          shippingInformation.state = progresses[0].status;
-          shippingInformation.from.time = progresses[progresses.length - 1].time;
-          if (progresses[0].status.id === 'delivered')
-            shippingInformation.to.time = progresses[0].time;
+          shippingInformation.state = progresses[progresses.length - 1].status;
+          shippingInformation.from.time = progresses[0].time;
+          if (progresses[progresses.length - 1].status.id === 'delivered')
+            shippingInformation.to.time = progresses[progresses.length - 1].time;
         } else {
           shippingInformation.state = {
             id: 'information_received',
