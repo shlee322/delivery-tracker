@@ -90,6 +90,8 @@ function getTrack(trackId) {
 
         progressTable.querySelector('tbody').querySelectorAll('tr').forEach(element => {
           const insideTd = element.querySelectorAll('td');
+          // 간혹 <tr></tr> 형태가 섞여있음
+          if (insideTd.length < 4) return;
           const date = insideTd[0].textContent; // insideTd[0] - 날짜 (ex. 2021-04-13)
           const time = insideTd[1].textContent; // insideTd[1] - 시간 (ex. 10:37)
           const address = insideTd[2].textContent; // insideTd[2] - 위치
