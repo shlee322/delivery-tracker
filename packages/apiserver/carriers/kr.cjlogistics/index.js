@@ -15,7 +15,7 @@ const STATUS_MAP = {
 };
 
 function parseTime(s) {
-  return `${s.replace(' ', 'T').substring(0, s.lastIndexOf('.'))}+09:00`;
+  return `${s.replace(' ', 'T')}+09:00`;
 }
 
 function getTrack(trackId) {
