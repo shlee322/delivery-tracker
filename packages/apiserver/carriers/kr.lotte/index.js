@@ -56,7 +56,7 @@ function getTrack(trackId) {
 
               result.unshift({
                 status: parseStatus(tds[0].textContent),
-                time: `${tds[1].textContent.replace(/\s+/g, 'T')}:00+09:00`,
+                time: `${tds[1].textContent.trim().replace(/\s+/g, 'T')}:00+09:00`,
                 location: {
                   name: tds[2].textContent.trim(),
                 },
