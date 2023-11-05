@@ -1,0 +1,10 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "DeliveryTrackerServerPreLaunchTask",
+        "type": "shell",
+        "command": "pnpm --filter '@delivery-tracker/server' build-with-deps"
+      }
+    ]
+  }

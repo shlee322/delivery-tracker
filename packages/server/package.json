@@ -1,0 +1,25 @@
+{
+  "name": "@delivery-tracker/server",
+  "private": true,
+  "type": "commonjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p .",
+    "build-with-deps": "pnpm --filter '@delivery-tracker/api' --filter '@delivery-tracker/core' build-with-deps && pnpm build",
+    "start": "node dist/index.js",
+    "dev": "node-dev src/index.ts"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.7.0",
+    "@delivery-tracker/api": "workspace:*",
+    "@delivery-tracker/core": "workspace:*",
+    "luxon": "^3.4.0",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.3.1",
+    "node-dev": "^8.0.0",
+    "ts-node": "^10.9.1"
+  }
+}

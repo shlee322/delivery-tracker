@@ -1,0 +1,17 @@
+{
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "devcontainer",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "forwardPorts": [4000],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+            ]
+        }
+	},
+	"portsAttributes": {
+        "4000": {
+			"label": "api-server"
+		}
+	}
+}

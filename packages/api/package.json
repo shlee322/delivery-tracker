@@ -1,0 +1,23 @@
+{
+  "name": "@delivery-tracker/api",
+  "private": true,
+  "type": "commonjs",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "graphql-codegen && tsc -p . && cp src/schema/schema.graphql dist/schema/schema.graphql",
+    "build-with-deps": "pnpm --filter '@delivery-tracker/core' build-with-deps && pnpm build"
+  },
+  "dependencies": {
+    "@delivery-tracker/core": "workspace:*",
+    "graphql": "^16.6.0",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^3.3.1",
+    "@graphql-codegen/typescript": "^3.0.4",
+    "@graphql-codegen/typescript-resolvers": "^3.2.1"
+  }
+}

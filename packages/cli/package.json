@@ -1,0 +1,25 @@
+{
+  "name": "@delivery-tracker/cli",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc -p .",
+    "start": "npx node dist/index.js",
+    "build-with-deps": "pnpm --filter '@delivery-tracker/api' build-with-deps && pnpm build"
+  },
+  "bin": {
+    "delivery-tracker": "./dist/index.js"
+  },
+  "dependencies": {
+    "@delivery-tracker/api": "workspace:*",
+    "@delivery-tracker/core": "workspace:*",
+    "graphql": "^16.6.0",
+    "luxon": "^3.4.0",
+    "winston": "^3.8.2",
+    "yargs": "^17.7.1"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.3.1",
+    "@types/yargs": "^17.0.24"
+  }
+}

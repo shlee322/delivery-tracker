@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "@delivery-tracker/server",
+            "runtimeExecutable": "pnpm",
+            "cwd": "${workspaceFolder}/packages/server",
+            "runtimeArgs": ["run", "dev"],
+            "outputCapture": "std",
+            "env": {
+                "LISTEN_PORT": "4000"
+            },
+            "preLaunchTask": "DeliveryTrackerServerPreLaunchTask"
+        }
+    ]
+}

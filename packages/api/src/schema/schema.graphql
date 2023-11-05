@@ -1,0 +1,349 @@
+"""
+A scalar type representing date and time in a standardized format.
+DateTime follows the RFC3339 (ISO8601) standard and includes a timezone.
+The timezone may vary depending on the location of the shipment event.
+"""
+scalar DateTime
+
+"""
+This GraphQL schema defines a shipment tracking system that track shipments, fetch carrier information, and obtain detailed tracking event data.
+"""
+type Query {
+  """
+  Retrieves tracking information for a shipment based on the carrier ID and tracking number.
+
+  See: https://tracker.delivery/docs/tracking-api
+  """
+  track(
+    """
+    The unique identifier of the carrier.
+    """
+    carrierId: ID!,
+
+    """
+    The tracking number of the shipment.
+    """
+    trackingNumber: String!
+  ): TrackInfo
+
+  """
+  Returns a connection object containing carriers.
+
+  See: https://tracker.delivery/docs/tracking-api
+  """
+  carriers(
+    """
+    Relay-style Cursor Connection `first` argument.
+    """
+    first: Int,
+    """
+    Relay-style Cursor Connection `after` argument.
+    """
+    after: String,
+    """
+    Relay-style Cursor Connection `last` argument.
+    """
+    last: Int,
+    """
+    Relay-style Cursor Connection `before` argument.
+    """
+    before: String
+  ): CarrierConnection
+
+  """
+  Returns the Carrier object with the Carrier ID.
+
+  See: https://tracker.delivery/docs/tracking-api
+  """
+  carrier(
+    """
+    The unique identifier of the carrier.
+    """
+    id: ID!
+  ): Carrier
+}
+
+"""
+Represents a shipping carrier.
+"""
+type Carrier {
+  id: ID!
+}
+
+"""
+A connection object for a list of shipping carriers.
+"""
+type CarrierConnection {
+  """
+  A list of edges in the connection, each containing a Carrier node.
+  """
+  edges: [CarrierEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+An edge in the CarrierConnection, containing a Carrier node.
+"""
+type CarrierEdge {
+  """
+  The Carrier node in the edge.
+  """
+  node: Carrier
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+Contains tracking information for a shipment.
+"""
+type TrackInfo {
+  """
+  The tracking number for the shipment.
+  """
+  trackingNumber: String!
+
+  """
+  Represents the most likely event that has occurred recently.
+  This may differ from the last item in `TrackInfo.events`.
+
+  For example, if there are any abnormal situations such as OUT_FOR_DELIVERY events being registered after the DELIVERED event in events, the lastEvent.status.code will still prioritize DELIVERED.
+  """
+  lastEvent: TrackEvent
+
+  """
+  A list of tracking events for the shipment.
+
+  The event sort order is from oldest to newest events.
+
+  Important: See also `TrackInfo.lastEvent` field.
+  """
+  events(
+    """
+    Relay-style Cursor Connection `first` argument.
+    """
+    first: Int,
+    """
+    Relay-style Cursor Connection `after` argument.
+    """
+    after: String,
+    """
+    Relay-style Cursor Connection `last` argument.
+    """
+    last: Int,
+    """
+    Relay-style Cursor Connection `before` argument.
+    """
+    before: String
+  ): TrackEventConnection
+
+  """
+  The sender's contact information.
+  """
+  sender: ContactInfo
+
+  """
+  The recipient's contact information.
+  """
+  recipient: ContactInfo
+}
+
+"""
+Represents a single tracking event for a shipment.
+"""
+type TrackEvent {
+  """
+  The status of the tracking event.
+  """
+  status: TrackEventStatus!
+
+  """
+  The time of the tracking event.
+  """
+  time: DateTime
+
+  """
+  The location of the tracking event.
+  """
+  location: Location
+
+  """
+  The contact information related to the tracking event.
+  """
+  contact: ContactInfo
+
+  """
+  The description of the tracking event.
+  """
+  description: String
+}
+
+"""
+A connection object for a list of tracking events.
+"""
+type TrackEventConnection {
+  """
+  A list of edges in the connection, each containing a TrackEvent node.
+  """
+  edges: [TrackEventEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+Represents the status of a tracking event.
+"""
+type TrackEventStatus {
+  """
+  The general status of the tracking event.
+  """
+  code: TrackEventStatusCode!
+
+  """
+  The name of the tracking event.
+  """
+  name: String
+}
+
+"""
+An edge in the TrackEventConnection, containing a TrackEvent node.
+"""
+type TrackEventEdge {
+  """
+  The TrackEvent node in the edge.
+  """
+  node: TrackEvent
+
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+An enumeration of possible general statuses for a tracking event.
+"""
+enum TrackEventStatusCode {
+  "The tracking status is currently unknown or could not be determined."
+  UNKNOWN
+  "The tracking information has been received and is being processed."
+  INFORMATION_RECEIVED
+  "The shipment or package is currently at the pickup location."
+  AT_PICKUP
+  "The shipment is in transit and is on its way to the destination."
+  IN_TRANSIT
+  "The shipment is out for delivery and is on its way to the recipient."
+  OUT_FOR_DELIVERY
+  "Delivery attempt has failed, and the package is still not delivered."
+  ATTEMPT_FAIL
+  "The shipment has been successfully delivered to the recipient."
+  DELIVERED
+  "The package is available for pickup at a designated location."
+  AVAILABLE_FOR_PICKUP
+  "There is an exception or issue with the shipment that requires attention."
+  EXCEPTION
+}
+
+"""
+Represents the location of a tracking event or contact.
+"""
+type Location {
+  """
+  The country code for the location.
+  """
+  countryCode: String
+
+  """
+  The postal code for the location.
+  """
+  postalCode: String
+
+  """
+  The name of the location.
+  """
+  name: String
+}
+
+"""
+Represents contact information for a sender, recipient, or tracking event.
+"""
+type ContactInfo {
+  """
+  The name of the contact.
+  """
+  name: String
+
+  """
+  The location of the contact.
+  """
+  location: Location
+
+  """
+  The phone number of the contact.
+
+  It follows the E.164 format by default, but if allowInvalidFormat is true and masking areas is detected, it will be displayed as X.
+  If allowInvalidFormat is false, null will be returned if the phone number is not in the correct format.
+  """
+  phoneNumber(
+      """
+      If true, masking areas will be represented by X.
+      If false and detected masking areas, field will return null.
+
+      default: true
+      """
+      allowInvalidFormat: Boolean
+  ): String
+}
+
+"""
+Represents pagination information for connections following the Relay Cursor Connection Specification.
+Indicates if there are more items when paginating forwards or backwards and provides cursors for pagination.
+"""
+type PageInfo {
+  """
+  Indicates if there are more items when paginating forwards.
+  """
+  hasNextPage: Boolean!
+
+  """
+  Indicates if there are more items when paginating backwards.
+  """
+  hasPreviousPage: Boolean!
+
+  """
+  The cursor for the first item in the current page, used for paginating backwards.
+  """
+  startCursor: String
+
+  """
+  The cursor for the last item in the current page, used for paginating forwards.
+  """
+  endCursor: String
+}
+
+"""
+An enumeration of error codes that could be returned by the API, providing insight into what kind of error occurred.
+
+See: https://tracker.delivery/docs/error-handling
+"""
+enum ErrorCode {
+  """
+  An unexpected internal error occurred within the server. This could be due to various reasons such as server misconfiguration, operational failures, or other unexpected conditions.
+  """
+  INTERNAL
+  """
+  The request could not be understood by the server due to malformed syntax. The client should not repeat the request without modifications.
+  """
+  BAD_REQUEST
+  """
+  The requested resource could not be found. Subsequent requests by the client are permissible.
+  """
+  NOT_FOUND
+}
