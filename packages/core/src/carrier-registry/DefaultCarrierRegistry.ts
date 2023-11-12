@@ -26,6 +26,8 @@ import { TNT } from "../carriers/nl.tnt";
 import { Fedex } from "../carriers/us.fedex";
 import { UPS } from "../carriers/us.ups";
 import { USPS } from "../carriers/us.usps";
+import { ActcoreOceanInbound } from "../carriers/kr.actcore.ocean-inbound";
+import { CoupangLogisticsServices } from "../carriers/kr.coupangls";
 
 interface DefaultCarrierRegistryConfig {
   carriers: Record<
@@ -45,7 +47,9 @@ class DefaultCarrierRegistry implements CarrierRegistry {
 
     await this.register(new DHL());
     await this.register(new Sagawa());
+    await this.register(new ActcoreOceanInbound());
     await this.register(new CJLogistics());
+    await this.register(new CoupangLogisticsServices());
     await this.register(new CarrierAlias("kr.cupost", new CJLogistics()));
     await this.register(new Chunilps());
     await this.register(new CVSnet());
