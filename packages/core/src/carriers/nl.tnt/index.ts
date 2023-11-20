@@ -145,7 +145,7 @@ class TNTTrackScraper {
         return TrackEventStatusCode.Delivered;
     }
 
-    this.logger.error("Unexpected status code", {
+    this.logger.warn("Unexpected status code", {
       status,
     });
 

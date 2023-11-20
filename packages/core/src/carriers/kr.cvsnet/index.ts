@@ -218,6 +218,10 @@ class CVSnetTrackScraper {
         return TrackEventStatusCode.Delivered;
     }
 
+    this.logger.warn("Unexpected status code", {
+      transCode,
+    });
+
     return TrackEventStatusCode.Unknown;
   }
 
