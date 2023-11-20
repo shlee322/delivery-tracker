@@ -235,10 +235,50 @@ class HanjinTrackScraper {
       };
     }
 
+    if (description?.includes("수입통관장에 반입")) {
+      return {
+        code: TrackEventStatusCode.InTransit,
+        name: "수입통관장 반입",
+        carrierSpecificData: new Map(),
+      };
+    }
+
+    if (description?.includes("항공편으로 출발 대기")) {
+      return {
+        code: TrackEventStatusCode.InTransit,
+        name: "출발 대기",
+        carrierSpecificData: new Map(),
+      };
+    }
+
+    if (description?.includes("상품 출고 대기")) {
+      return {
+        code: TrackEventStatusCode.InTransit,
+        name: "상품 출고 대기",
+        carrierSpecificData: new Map(),
+      };
+    }
+
+    if (description?.includes("관부가세 납부 대기 중")) {
+      return {
+        code: TrackEventStatusCode.Exception,
+        name: "관부가세 납부 대기",
+        carrierSpecificData: new Map(),
+      };
+    }
+
     if (description?.includes("접수")) {
       return {
         code: TrackEventStatusCode.InformationReceived,
         name: "접수",
+        carrierSpecificData: new Map(),
+      };
+    }
+
+    if (description?.includes("운송장 정보가 등록되었습니다")) {
+      return {
+        code: TrackEventStatusCode.InformationReceived,
+        name: "운송장 등록",
         carrierSpecificData: new Map(),
       };
     }
