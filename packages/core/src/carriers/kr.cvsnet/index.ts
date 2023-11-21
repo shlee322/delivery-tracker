@@ -216,6 +216,16 @@ class CVSnetTrackScraper {
         return TrackEventStatusCode.AvailableForPickup;
       case "C11": // 고객전달
         return TrackEventStatusCode.Delivered;
+      case "11": // 집화처리
+        return TrackEventStatusCode.AtPickup;
+      case "21": // SM입고
+      case "41": // 간선상차
+      case "42": // 간선하차
+        return TrackEventStatusCode.InTransit;
+      case "82": // 배송출발
+        return TrackEventStatusCode.OutForDelivery;
+      case "91": // 배송완료
+        return TrackEventStatusCode.Delivered;
     }
 
     this.logger.warn("Unexpected status code", {
