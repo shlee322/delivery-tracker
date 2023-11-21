@@ -208,6 +208,7 @@ class CVSnetTrackScraper {
       case "C03": // (집화)일배 →  허브 출고
       case "C04": // (집화)일배 →  허브 입고
       case "C07": // 허브 →  (도착)일배 출고
+      case "C08": // 허브 →  (도착)일배 입고
       case "C09": // (도착)일배 → 점포 출고
         return TrackEventStatusCode.InTransit;
       case "C095": // 배송기사 인계
