@@ -6,7 +6,7 @@ Delivery and Shipping Tracking Service
 ### Cloud (Managed Service)
 Visit : https://tracker.delivery
 
-### Self-Hosted (Self Service)
+### Self-Hosted
 #### Setting Up the Development Environment
 Delivery Tracker can be set up in local development environments and is also readily available for setup through GitHub Codespaces.
 
@@ -34,3 +34,6 @@ See `Dockerfile`
 - packages/core : Scraper code
 - packages/cli : A Command Line Interface (CLI) tool that uses the execute function from packages/api.
 - packages/http : A self-hosted GraphQL HTTP server that uses the execute function from packages/api.
+
+### Request additional carriers
+See https://tracker.delivery/request-additional-carrier
