@@ -28,6 +28,7 @@ import { UPS } from "../carriers/us.ups";
 import { USPS } from "../carriers/us.usps";
 import { ActcoreOceanInbound } from "../carriers/kr.actcore.ocean-inbound";
 import { CoupangLogisticsServices } from "../carriers/kr.coupangls";
+import { GoodsToLuck } from "../carriers/kr.goodstoluck";
 
 interface DefaultCarrierRegistryConfig {
   carriers: Record<
@@ -56,6 +57,7 @@ class DefaultCarrierRegistry implements CarrierRegistry {
     await this.register(new Cway());
     await this.register(new Daesin());
     await this.register(new KoreaPost());
+    await this.register(new GoodsToLuck());
     await this.register(new CarrierAlias("kr.homepick", new Hanjin()));
     await this.register(new Hanjin());
     await this.register(new HonamLogis());
