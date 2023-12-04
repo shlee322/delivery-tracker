@@ -4,6 +4,7 @@ import {
   type CarrierTrackInput,
   type TrackInfo,
   type TrackEvent,
+  type TrackEventStatus,
   TrackEventStatusCode,
   type Location,
   type ContactInfo,
@@ -13,7 +14,6 @@ import { NotFoundError } from "../../core/errors";
 import { DateTime } from "luxon";
 import { JSDOM } from "jsdom";
 import { type CarrierUpstreamFetcher } from "../../carrier-upstream-fetcher/CarrierUpstreamFetcher";
-import { map } from "cheerio/lib/api/traversing";
 
 const carrierLogger = rootLogger.child({
   carrierId: "kr.epost",
@@ -82,11 +82,7 @@ class KoreaPostTrackScraper {
     const status = tds[3].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
 
     return {
-      status: {
-        code: this.parseStatusCode(status),
-        name: status,
-        carrierSpecificData: new Map(),
-      },
+      status: this.parseStatus(status),
       time: this.parseTime(date, time),
       location: this.parseLocation(location),
       contact: null,
@@ -95,51 +91,93 @@ class KoreaPostTrackScraper {
     };
   }
 
-  private parseStatusCode(status: string | null): TrackEventStatusCode {
+  private parseStatus(status: string | null): TrackEventStatus {
     if (status === null) {
       this.logger.warn("status null");
-      return TrackEventStatusCode.Unknown;
+      return {
+        code: TrackEventStatusCode.Unknown,
+        name: null,
+        carrierSpecificData: new Map(),
+      };
     }
 
     switch (status) {
       case "운송장출력":
-        return TrackEventStatusCode.InformationReceived;
       case "접수":
-        return TrackEventStatusCode.InformationReceived;
       case "접수 마감 후 접수(익일발송)":
-        return TrackEventStatusCode.InformationReceived;
+        return {
+          code: TrackEventStatusCode.InformationReceived,
+          name: status,
+          carrierSpecificData: new Map(),
+        };
       case "발송":
-        return TrackEventStatusCode.InTransit;
       case "도착":
-        return TrackEventStatusCode.InTransit;
+        return {
+          code: TrackEventStatusCode.InTransit,
+          name: status,
+          carrierSpecificData: new Map(),
+        };
     }
 
     if (status.includes("배달준비")) {
-      return TrackEventStatusCode.OutForDelivery;
+      return {
+        code: TrackEventStatusCode.OutForDelivery,
+        name: "배달준비",
+        carrierSpecificData: new Map(),
+      };
     }
     if (status.includes("배달완료")) {
-      return TrackEventStatusCode.Delivered;
+      return {
+        code: TrackEventStatusCode.Delivered,
+        name: "배달완료",
+        carrierSpecificData: new Map(),
+      };
     }
     if (status.includes("신청취소")) {
-      return TrackEventStatusCode.Exception;
+      return {
+        code: TrackEventStatusCode.Exception,
+        name: "신청취소",
+        carrierSpecificData: new Map(),
+      };
     }
     if (status.includes("접수취소")) {
-      return TrackEventStatusCode.Exception;
+      return {
+        code: TrackEventStatusCode.Exception,
+        name: "접수취소",
+        carrierSpecificData: new Map(),
+      };
     }
     if (status.includes("미배달")) {
-      return TrackEventStatusCode.AttemptFail;
+      return {
+        code: TrackEventStatusCode.AttemptFail,
+        name: "미배달",
+        carrierSpecificData: new Map(),
+      };
     }
     if (status.includes("인수완료")) {
-      return TrackEventStatusCode.AtPickup;
+      return {
+        code: TrackEventStatusCode.AtPickup,
+        name: "인수완료",
+        carrierSpecificData: new Map(),
+      };
     }
     if (status.includes("집하완료")) {
-      return TrackEventStatusCode.InTransit;
+      return {
+        code: TrackEventStatusCode.InTransit,
+        name: "집하완료",
+        carrierSpecificData: new Map(),
+      };
     }
 
     this.logger.warn("Unexpected status code", {
       status,
     });
-    return TrackEventStatusCode.Unknown;
+
+    return {
+      code: TrackEventStatusCode.Unknown,
+      name: status,
+      carrierSpecificData: new Map(),
+    };
   }
 
   private parseTime(date: string | null, time: string | null): DateTime | null {
