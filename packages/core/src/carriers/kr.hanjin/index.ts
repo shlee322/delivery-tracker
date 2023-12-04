@@ -251,6 +251,14 @@ class HanjinTrackScraper {
       };
     }
 
+    if (description?.includes("항공편이 도착")) {
+      return {
+        code: TrackEventStatusCode.InTransit,
+        name: "항공편 도착",
+        carrierSpecificData: new Map(),
+      };
+    }
+
     if (description?.includes("상품 출고 대기")) {
       return {
         code: TrackEventStatusCode.InTransit,
