@@ -31,6 +31,7 @@ import { CoupangLogisticsServices } from "../carriers/kr.coupangls";
 import { GoodsToLuck } from "../carriers/kr.goodstoluck";
 import { CainiaoGlobal } from "../carriers/cn.cainiao.global";
 import { Pantos } from "../carriers/kr.epantos";
+import { LotteGlobal } from "../carriers/kr.lotte.global";
 
 interface DefaultCarrierRegistryConfig {
   carriers: Record<
@@ -70,6 +71,7 @@ class DefaultCarrierRegistry implements CarrierRegistry {
     await this.register(new Kunyoung());
     await this.register(new Logen());
     await this.register(new LotteGlobalLogistics());
+    await this.register(new LotteGlobal());
     await this.register(new SLX());
     await this.register(new CarrierAlias("kr.swgexp.epost", new KoreaPost()));
     await this.register(
