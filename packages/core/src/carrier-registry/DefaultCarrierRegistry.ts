@@ -29,6 +29,7 @@ import { USPS } from "../carriers/us.usps";
 import { ActcoreOceanInbound } from "../carriers/kr.actcore.ocean-inbound";
 import { CoupangLogisticsServices } from "../carriers/kr.coupangls";
 import { GoodsToLuck } from "../carriers/kr.goodstoluck";
+import { CainiaoGlobal } from "../carriers/cn.cainiao.global";
 
 interface DefaultCarrierRegistryConfig {
   carriers: Record<
@@ -46,6 +47,7 @@ class DefaultCarrierRegistry implements CarrierRegistry {
   public async init(): Promise<void> {
     await this.loadConfig();
 
+    await this.register(new CainiaoGlobal());
     await this.register(new DHL());
     await this.register(new Sagawa());
     await this.register(new ActcoreOceanInbound());
