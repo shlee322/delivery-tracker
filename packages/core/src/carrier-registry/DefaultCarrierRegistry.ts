@@ -30,6 +30,7 @@ import { ActcoreOceanInbound } from "../carriers/kr.actcore.ocean-inbound";
 import { CoupangLogisticsServices } from "../carriers/kr.coupangls";
 import { GoodsToLuck } from "../carriers/kr.goodstoluck";
 import { CainiaoGlobal } from "../carriers/cn.cainiao.global";
+import { Pantos } from "../carriers/kr.epantos";
 
 interface DefaultCarrierRegistryConfig {
   carriers: Record<
@@ -58,6 +59,7 @@ class DefaultCarrierRegistry implements CarrierRegistry {
     await this.register(new CVSnet());
     await this.register(new Cway());
     await this.register(new Daesin());
+    await this.register(new Pantos());
     await this.register(new KoreaPost());
     await this.register(new GoodsToLuck());
     await this.register(new CarrierAlias("kr.homepick", new Hanjin()));
