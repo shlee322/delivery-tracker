@@ -22,6 +22,7 @@ import { LotteGlobalLogistics } from "../carriers/kr.lotte";
 import { LTL } from "../carriers/kr.ltl";
 import { SLX } from "../carriers/kr.slx";
 import { TodayPickup } from "../carriers/kr.todaypickup";
+import { YongmaLogis } from "../carriers/kr.yongmalogis";
 import { EMS } from "../carriers/un.upu.ems";
 import { TNT } from "../carriers/nl.tnt";
 import { Fedex } from "../carriers/us.fedex";
@@ -80,6 +81,7 @@ class DefaultCarrierRegistry implements CarrierRegistry {
       new CarrierAlias("kr.swgexp.cjlogistics", new CJLogistics())
     );
     await this.register(new TodayPickup());
+    await this.register(new YongmaLogis());
     await this.register(new TNT());
     await this.register(new EMS());
     await this.register(new Fedex());
