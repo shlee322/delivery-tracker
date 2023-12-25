@@ -19,6 +19,7 @@ import { KyungdongExpress } from "../carriers/kr.kdexp";
 import { Kunyoung } from "../carriers/kr.kunyoung";
 import { Logen } from "../carriers/kr.logen";
 import { LotteGlobalLogistics } from "../carriers/kr.lotte";
+import { LTL } from "../carriers/kr.ltl";
 import { SLX } from "../carriers/kr.slx";
 import { TodayPickup } from "../carriers/kr.todaypickup";
 import { EMS } from "../carriers/un.upu.ems";
@@ -72,6 +73,7 @@ class DefaultCarrierRegistry implements CarrierRegistry {
     await this.register(new Logen());
     await this.register(new LotteGlobalLogistics());
     await this.register(new LotteGlobal());
+    await this.register(new LTL());
     await this.register(new SLX());
     await this.register(new CarrierAlias("kr.swgexp.epost", new KoreaPost()));
     await this.register(
@@ -89,6 +91,9 @@ class DefaultCarrierRegistry implements CarrierRegistry {
     return {
       carriers: {
         "de.dhl": {
+          enabled: false,
+        },
+        "kr.ltl": {
           enabled: false,
         },
         "us.fedex": {
