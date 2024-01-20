@@ -125,6 +125,10 @@ function trackInfoLastEventResolver(
     };
   }
 
+  if (parent.trackInfo.events.length === 0) {
+    return null;
+  }
+
   return {
     trackInfoContext: parent,
     trackEvent: parent.trackInfo.events[parent.trackInfo.events.length - 1],
