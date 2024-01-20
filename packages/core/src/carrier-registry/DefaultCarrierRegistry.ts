@@ -13,6 +13,7 @@ import { Sagawa } from "../carriers/jp.sagawa";
 import { Daesin } from "../carriers/kr.daesin";
 import { Hanjin } from "../carriers/kr.hanjin";
 import { KoreaPost } from "../carriers/kr.epost";
+import { KoreaPostEMS } from "../carriers/kr.epost.ems";
 import { HonamLogis } from "../carriers/kr.honamlogis";
 import { IlyangLogis } from "../carriers/kr.ilyanglogis";
 import { KyungdongExpress } from "../carriers/kr.kdexp";
@@ -64,6 +65,7 @@ class DefaultCarrierRegistry implements CarrierRegistry {
     await this.register(new Daesin());
     await this.register(new Pantos());
     await this.register(new KoreaPost());
+    await this.register(new KoreaPostEMS());
     await this.register(new GoodsToLuck());
     await this.register(new CarrierAlias("kr.homepick", new Hanjin()));
     await this.register(new Hanjin());
