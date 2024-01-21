@@ -80,7 +80,10 @@ class KoreaPostEMSTrackScraper {
     const time = tds[0].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
     const status = tds[1].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
     const location = tds[2].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
-    const description = tds[3].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
+    let description = tds[3].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
+    if (description === "") {
+      description = `${status ?? ""} - ${location ?? ""}`;
+    }
 
     return {
       status: this.parseStatus(status),
