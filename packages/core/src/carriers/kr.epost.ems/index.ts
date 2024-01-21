@@ -81,7 +81,7 @@ class KoreaPostEMSTrackScraper {
     const status = tds[1].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
     const location = tds[2].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
     let description = tds[3].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
-    if (description === "") {
+    if (description === "" || description === null) {
       description = `${status ?? ""} - ${location ?? ""}`;
     }
 
