@@ -28,12 +28,20 @@ const IlyangLogisTrackingInfoResponseResultAPIBodySchema = z.object({
   ),
 });
 
+const IlyangLogisTrackingInfoResponseResultAPIHeadSchema = z.object({
+  returnCode: z.string(),
+  returnDesc: z.string(),
+});
+
 const IlyangLogisTrackingInfoResponseResultAPISchema = z.object({
-  body: IlyangLogisTrackingInfoResponseResultAPIBodySchema,
+  body: IlyangLogisTrackingInfoResponseResultAPIBodySchema.nullable(),
+  head: IlyangLogisTrackingInfoResponseResultAPIHeadSchema,
 });
 
 const IlyangLogisTrackingInfoResponseSchema = z.object({
   resultAPI: IlyangLogisTrackingInfoResponseResultAPISchema,
+  resultCode: z.string(),
+  resultMsg: z.string(),
 });
 
 type IlyangLogisTrackingInfoResponse = z.infer<

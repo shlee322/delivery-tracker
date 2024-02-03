@@ -79,7 +79,13 @@ class IlyangLogisTrackScraper {
       });
     }
 
-    const result = traceResponseJson.resultAPI.body.resultList.at(0);
+    if (traceResponseJson.resultAPI.head.returnCode !== "R0") {
+      throw new InternalError(
+        `[일양로지스 내부 에러] code: ${traceResponseJson.resultAPI.head.returnCode}, msg: ${traceResponseJson.resultAPI.head.returnDesc}`
+      );
+    }
+
+    const result = traceResponseJson.resultAPI.body?.resultList?.at(0);
     if (result === null || result === undefined) {
       throw new InternalError();
     }
