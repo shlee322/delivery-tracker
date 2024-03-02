@@ -10,6 +10,7 @@ import { CVSnet } from "../carriers/kr.cvsnet";
 import { DHL } from "../carriers/de.dhl";
 import { Cway } from "../carriers/kr.cway";
 import { Sagawa } from "../carriers/jp.sagawa";
+import { Yamato } from "../carriers/jp.yamato";
 import { Daesin } from "../carriers/kr.daesin";
 import { Hanjin } from "../carriers/kr.hanjin";
 import { KoreaPost } from "../carriers/kr.epost";
@@ -55,6 +56,7 @@ class DefaultCarrierRegistry implements CarrierRegistry {
     await this.register(new CainiaoGlobal());
     await this.register(new DHL());
     await this.register(new Sagawa());
+    await this.register(new Yamato());
     await this.register(new ActcoreOceanInbound());
     await this.register(new CJLogistics());
     await this.register(new CoupangLogisticsServices());
