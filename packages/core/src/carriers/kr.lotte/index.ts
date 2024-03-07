@@ -1,5 +1,5 @@
+import { type z } from "zod";
 import { type Logger } from "winston";
-import { JSDOM } from "jsdom";
 import {
   Carrier,
   type CarrierTrackInput,
@@ -9,13 +9,10 @@ import {
   type Location,
 } from "../../core";
 import { rootLogger } from "../../logger";
-import {
-  BadRequestError,
-  InternalError,
-  NotFoundError,
-} from "../../core/errors";
+import { BadRequestError, NotFoundError } from "../../core/errors";
 import { DateTime } from "luxon";
 import { type CarrierUpstreamFetcher } from "../../carrier-upstream-fetcher/CarrierUpstreamFetcher";
+import type * as schema from "./LotteGlobalLogisticsAPISchemas";
 
 const carrierLogger = rootLogger.child({
   carrierId: "kr.lotte",
@@ -55,47 +52,31 @@ class LotteGlobalLogisticsTrackScraper {
       throw new BadRequestError();
     }
 
+    const queryString = new URLSearchParams({
+      invNo: this.trackingNumber,
+    }).toString();
+
     const response = await this.upstreamFetcher.fetch(
-      "https://www.lotteglogis.com/home/reservation/tracking/linkView",
-      {
-        method: "POST",
-        headers: {
-          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-        },
-        body: new URLSearchParams({
-          InvNo: this.trackingNumber,
-        }).toString(),
-      }
+      `https://ftr.alps.llogis.com:18260/openapi/ftr/getCustomerInvTracking?${queryString}`
     );
-    const traceResponseHtmlText = await response.text();
-    this.logger.debug("traceResponseHtmlText", {
-      html: traceResponseHtmlText,
+
+    const trackingResponseJson: z.infer<
+      typeof schema.LotteGlobalLogisticsGetCustomerInvTrackingResponseSchema
+    > = await response.json();
+    this.logger.debug("trackingResponseJson", {
+      json: trackingResponseJson,
     });
 
-    const dom = new JSDOM(traceResponseHtmlText);
-    const { document } = dom.window;
-
-    const tables = document.querySelectorAll("table");
-    if (tables.length !== 2) {
-      this.logger.warn("table count error");
-    }
-    const eventTrs = tables[1].querySelectorAll("tbody > tr");
-
     if (
-      eventTrs.length === 1 &&
-      eventTrs[0].querySelectorAll("td").length === 1
+      trackingResponseJson.errorCd === "0" &&
+      trackingResponseJson.tracking.length === 0
     ) {
-      const message =
-        eventTrs[0]
-          .querySelector("td")
-          ?.textContent?.replace(/\s+/g, " ")
-          ?.trim() ?? null;
       throw new NotFoundError();
     }
 
     const events: TrackEvent[] = [];
-    for (const event of eventTrs) {
-      events.unshift(this.parseEvent(event));
+    for (const event of trackingResponseJson.tracking) {
+      events.push(this.parseEvent(event));
     }
 
     return {
@@ -116,58 +97,61 @@ class LotteGlobalLogisticsTrackScraper {
     };
   }
 
-  private parseEvent(tr: Element): TrackEvent {
-    const tds = tr.querySelectorAll("td");
-    const status = tds[0].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
-    const time = tds[1].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
-    const location = tds[2].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
-    const description =
-      tds[3].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
-
+  private parseEvent(
+    tracking: z.infer<
+      typeof schema.LotteGlobalLogisticsGetCustomerInvTrackingResponseTrackingItemSchema
+    >
+  ): TrackEvent {
     return {
       status: {
-        code: this.parseStatusCode(status),
-        name: status,
+        code: this.parseStatusCode(tracking.GODS_STAT_CD),
+        name: tracking.GODS_STAT_NM ?? null,
         carrierSpecificData: new Map(),
       },
-      time: this.parseTime(time),
-      location: this.parseLocation(location),
+      time: this.parseTime(tracking.SCAN_YMD, tracking.SCAN_TME),
+      location: this.parseLocation(tracking.BRNSHP_NM),
       contact: null,
-      description,
+      description: `${tracking.PTN_BRNSHP_NM} - ${tracking.STATUS}`,
       carrierSpecificData: new Map(),
     };
   }
 
-  private parseStatusCode(status: string | null): TrackEventStatusCode {
-    switch (status) {
-      case "인수/상품접수":
+  private parseStatusCode(statCd: string | null): TrackEventStatusCode {
+    switch (statCd) {
+      case "10": // 집하
         return TrackEventStatusCode.AtPickup;
-      case "상품 이동중":
+      case "12": // 운송장 등록
+        return TrackEventStatusCode.InformationReceived;
+      case "20": // 구간발송
         return TrackEventStatusCode.InTransit;
-      case "배송 출발":
+      case "21": // 구간도착
+        return TrackEventStatusCode.InTransit;
+      case "24": // 적입
+        return TrackEventStatusCode.InTransit;
+      case "40": // 배달전
         return TrackEventStatusCode.OutForDelivery;
-      case "배달 완료":
+      case "41": // 배달완료
         return TrackEventStatusCode.Delivered;
+      case "45": // 인수자등록
+        return TrackEventStatusCode.Unknown;
     }
-
     this.logger.warn("Unexpected status code", {
-      status,
+      statCd,
     });
-
     return TrackEventStatusCode.Unknown;
   }
 
-  private parseTime(time: string | null): DateTime | null {
+  private parseTime(date: string, time: string): DateTime | null {
     if (time === null) {
       this.logger.warn("time null");
       return null;
     }
-    if (time.endsWith("--:--")) {
-      // TODO : 23:59 대신 이전 이벤트 기반으로 보정 필요
-      time = `${time.substring(0, time.length - 5)}23:59`;
+    if (time === "------") {
+      // TODO : 23:59:59 대신 이전 이벤트 기반으로 보정 필요
+      time = `235959`;
     }
 
-    const result = DateTime.fromFormat(time, "yyyy-MM-dd HH:mm", {
+    const result = DateTime.fromFormat(`${date} ${time}`, "yyyyMMdd HHmmss", {
       zone: "Asia/Seoul",
     });
 
