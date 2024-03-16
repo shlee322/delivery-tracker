@@ -76,14 +76,14 @@ class ChunilpsTrackScraper {
     const eventElements = tables[4].querySelectorAll("tr:not(:first-child)");
 
     const sender: ContactInfo = {
-      name: senderElements[0].textContent?.trim() ?? null,
+      name: senderElements[0]?.textContent?.trim() ?? null,
       location: null,
       phoneNumber: null,
       carrierSpecificData: new Map(),
     };
 
     const recipient: ContactInfo = {
-      name: recipientElements[0].textContent?.trim() ?? null,
+      name: recipientElements[0]?.textContent?.trim() ?? null,
       location: null,
       phoneNumber: null,
       carrierSpecificData: new Map(),
@@ -94,29 +94,29 @@ class ChunilpsTrackScraper {
 
     this.parseBranchInfoToCarrierSpecificData(
       "dispatch",
-      senderElements[1].textContent?.trim() ?? null
+      senderElements[1]?.textContent?.trim() ?? null
     ).forEach((value, key) => {
       carrierSpecificData.set(key, value);
     });
 
     this.parseBranchInfoToCarrierSpecificData(
       "arrival",
-      recipientElements[1].textContent?.trim() ?? null
+      recipientElements[1]?.textContent?.trim() ?? null
     ).forEach((value, key) => {
       carrierSpecificData.set(key, value);
     });
 
     carrierSpecificData.set(
       `${this.carrierSpecificDataPrefix}/item.name`,
-      itemElements[0].textContent?.trim()
+      itemElements[0]?.textContent?.trim()
     );
     carrierSpecificData.set(
       `${this.carrierSpecificDataPrefix}/item.quantity`,
-      itemElements[1].textContent?.trim()
+      itemElements[1]?.textContent?.trim()
     );
     carrierSpecificData.set(
       `${this.carrierSpecificDataPrefix}/item.cost`,
-      itemElements[2].textContent?.replace(/\s+/g, " ")?.trim()
+      itemElements[2]?.textContent?.replace(/\s+/g, " ")?.trim()
     );
 
     return {
@@ -169,11 +169,16 @@ class ChunilpsTrackScraper {
         return TrackEventStatusCode.AtPickup;
       case "간선상차":
       case "간선하차":
+      case "중계도착":
+      case "중계발송":
       case "발송터미널하차":
       case "발송터미널출발":
       case "도착터미널하차":
       case "영업소도착":
+      case "도착":
         return TrackEventStatusCode.InTransit;
+      case "배송출발":
+        return TrackEventStatusCode.OutForDelivery;
       case "배송완료":
         return TrackEventStatusCode.Delivered;
     }
