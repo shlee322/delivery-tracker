@@ -118,6 +118,8 @@ class LotteGlobalLogisticsTrackScraper {
 
   private parseStatusCode(statCd: string | null): TrackEventStatusCode {
     switch (statCd) {
+      case "09": // 반품취소
+        return TrackEventStatusCode.Exception;
       case "10": // 집하
         return TrackEventStatusCode.AtPickup;
       case "12": // 운송장 등록
@@ -127,6 +129,8 @@ class LotteGlobalLogisticsTrackScraper {
       case "21": // 구간도착
         return TrackEventStatusCode.InTransit;
       case "24": // 적입
+        return TrackEventStatusCode.InTransit;
+      case "25": // 해체
         return TrackEventStatusCode.InTransit;
       case "40": // 배달전
         return TrackEventStatusCode.OutForDelivery;
