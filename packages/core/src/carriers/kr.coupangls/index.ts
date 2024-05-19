@@ -98,7 +98,18 @@ class CoupangLogisticsServicesScraper {
 
   private parseStatusCode(status: string | null): TrackEventStatusCode {
     switch (status) {
+      case "운송장 등록":
+        return TrackEventStatusCode.InformationReceived;
+      case "공항출발":
+      case "항공기 출발":
+      case "통관시작":
+      case "항공기 도착":
+      case "공항도착":
+      case "통관완료":
+      case "택배접수":
       case "집하":
+      case "캠프상차":
+      case "소터분류":
       case "캠프도착":
         return TrackEventStatusCode.InTransit;
       case "배송출발":
