@@ -81,12 +81,18 @@ class KoreaPostTrackScraper {
     const location = tds[2].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
     const status = tds[3].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
 
+    // 되도록 원본 텍스트 유지 (접수는 제외)
+    const statusDescription =
+      status?.startsWith("접수 소포 물품 사진") === true
+        ? "접수"
+        : status ?? "";
+
     return {
       status: this.parseStatus(status),
       time: this.parseTime(date, time),
       location: this.parseLocation(location),
       contact: null,
-      description: `${status ?? ""} - ${location ?? ""}`,
+      description: `${statusDescription} - ${location ?? ""}`,
       carrierSpecificData: new Map(),
     };
   }
@@ -118,7 +124,14 @@ class KoreaPostTrackScraper {
           carrierSpecificData: new Map(),
         };
     }
-
+    // NOTE: text가 "접수 소포 물품 사진 //<![CDATA[" 형식이면 "접수"로 변경하기 위함
+    if (status.startsWith("접수 소포 물품 사진")) {
+      return {
+        code: TrackEventStatusCode.InformationReceived,
+        name: "접수",
+        carrierSpecificData: new Map(),
+      };
+    }
     if (status.includes("배달준비")) {
       return {
         code: TrackEventStatusCode.OutForDelivery,
