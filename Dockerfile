@@ -13,7 +13,9 @@ FROM base AS build
 RUN apk update && apk --no-cache add \
   python3 \
   make \
-  g++
+  g++ \
+  py3-setuptools \
+  py3-distutils-extra  # Add distutils for Python
 WORKDIR /app
 COPY . /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
