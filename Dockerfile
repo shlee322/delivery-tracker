@@ -10,10 +10,6 @@ COPY . /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 FROM base AS build
-RUN apk update && apk --no-cache add \
-  python3 \
-  make \
-  g++
 WORKDIR /app
 COPY . /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
