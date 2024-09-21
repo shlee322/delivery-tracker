@@ -4,7 +4,7 @@ Delivery and Shipping Tracking Service
 
 ## Usage
 ### Cloud (Managed Service)
-Visit : https://tracker.delivery
+Visit : https://tracker.delivery/docs/try
 
 ### Self-Hosted
 #### Setting Up the Development Environment
