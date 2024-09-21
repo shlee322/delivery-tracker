@@ -1,0 +1,44 @@
+// This file is written in the VS Code REST Client extension format.
+// For more detailed examples, please refer to https://tracker.delivery/docs/try
+
+## Try Tracking API
+POST http://127.0.0.1:4000/graphql
+Content-Type: application/json
+X-REQUEST-TYPE: GraphQL
+
+query Track(
+  $carrierId: ID!,
+  $trackingNumber: String!
+) {
+  track(
+    carrierId: $carrierId,
+    trackingNumber: $trackingNumber
+  ) {
+    lastEvent {
+      time
+      status {
+        code
+        name
+      }
+      description
+    }
+    events(last: 10) {
+      edges {
+        node {
+          time
+          status {
+            code
+            name
+          }
+          description
+        }
+      }
+    }
+  }
+}
+
+{
+  "carrierId": "kr.cjlogistics",
+  "trackingNumber": "1234567890"
+}
+
