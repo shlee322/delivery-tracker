@@ -7,12 +7,12 @@ ENV PATH="$PNPM_HOME:$PATH"
 FROM base AS prod-deps
 WORKDIR /app
 COPY . /app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile
 
 FROM base AS build
 WORKDIR /app
 COPY . /app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @delivery-tracker/server build-with-deps
 
 FROM prod-deps
