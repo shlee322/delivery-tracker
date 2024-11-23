@@ -36,6 +36,7 @@ import { GoodsToLuck } from "../carriers/kr.goodstoluck";
 import { CainiaoGlobal } from "../carriers/cn.cainiao.global";
 import { Pantos } from "../carriers/kr.epantos";
 import { LotteGlobal } from "../carriers/kr.lotte.global";
+import { Homepick } from "../carriers/kr.homepick";
 
 interface DefaultCarrierRegistryConfig {
   carriers: Record<
@@ -69,7 +70,7 @@ class DefaultCarrierRegistry implements CarrierRegistry {
     await this.register(new KoreaPost());
     await this.register(new KoreaPostEMS());
     await this.register(new GoodsToLuck());
-    await this.register(new CarrierAlias("kr.homepick", new Hanjin()));
+    await this.register(new Homepick());
     await this.register(new Hanjin());
     await this.register(new HonamLogis());
     await this.register(new IlyangLogis());
