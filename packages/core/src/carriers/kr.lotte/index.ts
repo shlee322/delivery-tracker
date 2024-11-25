@@ -137,7 +137,7 @@ class LotteGlobalLogisticsTrackScraper {
       case "41": // 배달완료
         return TrackEventStatusCode.Delivered;
       case "45": // 인수자등록
-        return TrackEventStatusCode.Unknown;
+        return TrackEventStatusCode.Delivered;
     }
     this.logger.warn("Unexpected status code", {
       statCd,
