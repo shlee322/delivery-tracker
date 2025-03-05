@@ -119,7 +119,7 @@ class KyungdongExpressTrackScraper {
         name: event.scanTypeNm,
         carrierSpecificData: new Map(),
       },
-      time: this.parseTime(event.regDt),
+      time: this.parseTime(event.scanDt),
       location: {
         name: event.strtPointNm,
         countryCode: "KR",

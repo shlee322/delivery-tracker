@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const KyungdongExpressTrackingResponseDataScanListItemSchema = z.object({
-  regDt: z.string(),
+  scanDt: z.string(),
   scanType: z.string(),
   scanTypeNm: z.string(),
   strtPointNm: z.string(),
