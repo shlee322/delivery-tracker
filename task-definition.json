@@ -1,0 +1,44 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "container",
+            "image": "img",
+            "cpu": 0,
+            "memoryReservation": 0,
+            "links": [],
+            "portMappings": [
+                {
+                    "containerPort": 4000,
+                    "hostPort": 4000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/aws/yc-tracker-env-ecs-log-group",
+                    "awslogs-region": "ap-northeast-2",
+                    "awslogs-stream-prefix": "yc-tracker-env",
+                    "mode": "non-blocking"
+                }
+            }
+        }
+    ],
+    "family": "value",
+    "taskRoleArn": "value",
+    "executionRoleArn": "value",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "0",
+    "memory": "0",
+    "tags": []
+}
+
