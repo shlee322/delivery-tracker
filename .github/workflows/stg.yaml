@@ -1,0 +1,19 @@
+# This workflow will deploy a python cdk project
+name: Staging
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: false
+        type: string
+
+jobs:
+  deploy:
+    name: Staging Stage
+    permissions: write-all
+    uses: 
+      globalmsq/mufin-github-workflows/.github/workflows/delivery-tracker-pipeline.yaml@release
+    with:
+      environment: staging
+      version: ${{ inputs.version }}
+    secrets: inherit

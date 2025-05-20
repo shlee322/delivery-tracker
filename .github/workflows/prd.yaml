@@ -1,0 +1,19 @@
+# This workflow will to Production
+name: Production
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: false
+        type: string
+
+jobs:
+  deploy:
+    name: Production Stage
+    permissions: write-all
+    uses: 
+      globalmsq/mufin-github-workflows/.github/workflows/delivery-tracker-pipeline.yaml@release
+    with:
+      environment: production
+      version: ${{ inputs.version }}
+    secrets: inherit

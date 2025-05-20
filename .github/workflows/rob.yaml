@@ -1,0 +1,13 @@
+# This workflow will rollback on Production
+name: Rollback
+on:
+  workflow_dispatch:
+  
+jobs:
+  deploy:
+    name: Rollback Stage
+    permissions: write-all
+    uses: globalmsq/mufin-github-workflows/.github/workflows/delivery-tracker-rollback.yaml@release
+    with:
+      environment: production
+    secrets: inherit

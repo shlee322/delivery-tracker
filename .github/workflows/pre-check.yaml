@@ -1,0 +1,259 @@
+name: Dependency Check, Sonar Scan and Unit Test
+on:
+
+  pull_request:
+    branches:
+    - main
+  push:
+    branches:
+    - main
+    - '*patch'
+
+env:
+  project_base_dir: ${{ vars.PROJECT_BASE_DIR == '' && '.' || vars.PROJECT_BASE_DIR
+    }}
+  sonar_source: ${{ vars.SONAR_SOURCE == '' && '.' || vars.SONAR_SOURCE }}
+  source_exclusions: ${{ vars.SOURCE_EXCLUSIONS == '' && '' || vars.SOURCE_EXCLUSIONS
+    }}
+  source_inclusions: ${{ vars.SOURCE_INCLUSIONS == '' && '' || vars.SOURCE_INCLUSIONS
+    }}
+  java: ${{ vars.JAVA == '' && 'false' || vars.JAVA }}
+  tests: ${{ vars.TESTS == '' && '' || vars.TESTS }}
+  test_exclusions: ${{ vars.TESTS_EXCLUSIONS == '' && '' || vars.TESTS_EXCLUSIONS
+    }}
+  test_inclusions: ${{ vars.TESTS_INCLUSIONS == '' && '' || vars.TESTS_INCLUSIONS
+    }}
+
+jobs:
+  depcheck:
+    runs-on: [self-hosted, linux, X64, Dependency]
+    permissions: write-all
+    steps:
+
+    - name: Dependency Project Key
+      id: dependency_project_key
+      run: |
+        repo_name=`basename $GITHUB_REPOSITORY`
+        echo "DEPENDENCY_PROJECT_KEY=$repo_name" >> $GITHUB_ENV
+
+    - name: Remove report if exists
+      env:
+        KEY: ${{ env.DEPENDENCY_PROJECT_KEY }}
+      run: |
+        if [ -n "$(ls -A /home/must/actions-runner/_work/${KEY}/${KEY}/reports/ 2>/dev/null)" ]; then
+          echo "Directory is not empty. Removing reports..."
+          sudo rm /home/must/actions-runner/_work/${KEY}/${KEY}/reports/*
+        else
+          echo "Directory is empty. Skipping removal."
+        fi
+
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+
+    - name: Depcheck ${{ env.DEPENDENCY_PROJECT_KEY }}
+      uses: dependency-check/Dependency-Check_Action@1.1.0
+      id: Depcheck
+      with:
+        project: ${{ env.DEPENDENCY_PROJECT_KEY }}
+        path: '.'
+        format: 'HTML'
+
+    - name: Upload Dependency Check Results
+      uses: actions/upload-artifact@master
+      with:
+        name: depcheck-report
+        path: ${{github.workspace}}/reports
+
+    - name: Parse JSON Report for Vulnerabilities
+      id: parse_report
+      run: |
+        CRITICAL=$(xmllint --html --xpath 'count(//td[contains(text(), "CRITICAL")])' ${{github.workspace}}/reports/dependency-check-report.html 2>/dev/null)
+        HIGH=$(xmllint --html --xpath 'count(//td[contains(text(), "HIGH")])' ${{github.workspace}}/reports/dependency-check-report.html 2>/dev/null)
+        PACKAGE=$(xmllint --html --recover --xpath '//tr[contains(@class, "vulnerable")]/td[contains(@data-sort-value, "pkg:")]/@data-sort-value' ${{github.workspace}}/reports/dependency-check-report.html 2>/dev/null | sed 's/data-sort-value="\([^"]*\)"/\1/g' | sed 's/^[ \t]*//')
+        FORMATTED_PACKAGE=$(echo "$PACKAGE" | sed 's/^/* /')
+        echo "CRITICAL_COUNT=$CRITICAL" >> $GITHUB_ENV
+        echo "HIGH_COUNT=$HIGH" >> $GITHUB_ENV
+        echo "$FORMATTED_PACKAGE" > ${{ github.workspace }}/formatted_package.txt
+        cat ${{ github.workspace }}/formatted_package.txt
+
+    - name: Set Comment Message
+      id: set_message
+      run: |
+        if [[ ${{ env.CRITICAL_COUNT }} -gt 0 || ${{ env.HIGH_COUNT }} -gt 0 ]]; then
+          echo "message=❌ Failed" > $GITHUB_ENV
+        else
+          echo "message=✅ Passed" > $GITHUB_ENV
+        fi
+
+    - name: Load Formatted Package Content
+      id: load_file
+      run: |
+        if [[ "${{ env.message }}" == "❌ Failed" ]]; then
+            FORMATTED_PACKAGE=$(cat ${{ github.workspace }}/formatted_package.txt)
+          else
+            FORMATTED_PACKAGE="No vulnerable packages detected. 🎉"
+          fi
+          
+        # Remove leading/trailing whitespace and write the output
+        FORMATTED_PACKAGE=$(echo "$FORMATTED_PACKAGE" | sed 's/^[ \t]*//;s/[ \t]*$//')
+        echo "formatted_package<<EOF" >> $GITHUB_OUTPUT
+        echo "$FORMATTED_PACKAGE" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Comment PR
+      if: github.event_name == 'pull_request'
+      uses: thollander/actions-comment-pull-request@v3
+      with:
+        message: |
+          ## Dependency Report :bar_chart:
+
+          ### **Scan Status:** ${{ env.message }}
+
+          **Vulnerability Summary:**
+          - 🔴 **Critical Severity:** ${{ env.CRITICAL_COUNT}}
+          - 🔴 **High Severity:** ${{ env.HIGH_COUNT}}
+
+          **Top vulnerabilities**:
+          ${{ steps.load_file.outputs.formatted_package }}
+
+          🔗 [View Dependency Report](https://sonar.must.company/project/extension/dependencycheck/report_page?id=${{ env.DEPENDENCY_PROJECT_KEY }}&pullRequest=${{ github.event.number }})
+
+          ---
+          _This comment was automatically generated._
+
+    - name: Remove report
+      env:
+        KEY: ${{ env.DEPENDENCY_PROJECT_KEY }}
+      run: |
+        sudo rm /home/must/actions-runner/_work/${KEY}/${KEY}/reports/*
+
+  sonarscan-unittest-macos:
+    if: contains(github.repository, 'mobile') || contains(github.repository, 'flutter')
+    needs: depcheck
+    environment: develop
+    runs-on: [self-hosted, macOS, X64]
+    permissions: write-all
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+
+    - name: Download Dependecy Report
+      uses: actions/download-artifact@v4
+      continue-on-error: true
+
+    - name: Sonar Project Key
+      id: sonar_project_key
+      run: |
+        repo_name=`basename $GITHUB_REPOSITORY`
+        echo "SONAR_PROJECT_KEY=$repo_name" >> $GITHUB_ENV
+
+    - name: Sonar Scan with Java Option
+      if: env.java == 'true'
+      uses: sonarsource/sonarqube-scan-action@v5.0.0
+      env:
+        SONAR_TOKEN: ${{ secrets.MUFIN_SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ vars.MUFIN_SONAR_HOST_URL }}
+      with:
+        projectBaseDir: ${{ env.project_base_dir }}
+        args: >
+          -Dsonar.projectKey=$SONAR_PROJECT_KEY
+          -Dsonar.sources=${{ env.sonar_source }}
+          -Dsonar.tests=${{ env.tests }}
+          -Dsonar.test.exclusions=${{ env.test_exclusions }}
+          -Dsonar.test.inclusions=${{ env.test_inclusions }}
+          -Dsonar.java.binaries=.
+          -Dsonar.exclusions=**/*dependency-check*,**/*html,**/*css,**/**plugin**,**/**theme**,${{
+          env.source_exclusions }}
+          -Dsonar.inclusions=${{ env.source_inclusions }}
+          -Dsonar.qualitygate.wait=${{ vars.MUFIN_SONAR_QUALITY_CHECK }}
+          -Dsonar.c.file.suffixes=-
+          -Dsonar.cpp.file.suffixes=-
+          -Dsonar.objc.file.suffixes=-
+
+    - name: Sonar Scan
+      if: env.java == 'false'
+      uses: sonarsource/sonarqube-scan-action@v5.0.0
+      env:
+        SONAR_TOKEN: ${{ secrets.MUFIN_SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ vars.MUFIN_SONAR_HOST_URL }}
+      with:
+        projectBaseDir: ${{ env.project_base_dir }}
+        args: >
+          -Dsonar.projectKey=$SONAR_PROJECT_KEY
+          -Dsonar.sources=${{ env.sonar_source }}
+          -Dsonar.tests=${{ env.tests }}
+          -Dsonar.test.exclusions=${{ env.test_exclusions }}
+          -Dsonar.test.inclusions=${{ env.test_inclusions }}
+          -Dsonar.exclusions=**/*dependency-check*,**/*html,**/*css,**/**plugin**,**/**theme**,${{
+          env.source_exclusions }}
+          -Dsonar.inclusions=${{ env.source_inclusions }}
+          -Dsonar.qualitygate.wait=${{ vars.MUFIN_SONAR_QUALITY_CHECK }}
+          -Dsonar.c.file.suffixes=-
+          -Dsonar.cpp.file.suffixes=-
+          -Dsonar.objc.file.suffixes=-
+
+  sonarscan-unittest-linux:
+    if: ${{ !(contains(github.repository, 'mobile') || contains(github.repository,
+      'flutter')) }}
+    needs: depcheck
+    environment: develop
+    runs-on: [self-hosted, Linux, X64]
+    permissions: write-all
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+
+    - name: Download Dependecy Report
+      uses: actions/download-artifact@v4
+      continue-on-error: true
+
+    - name: Sonar Project Key
+      id: sonar_project_key
+      run: |
+        repo_name=`basename $GITHUB_REPOSITORY`
+        echo "SONAR_PROJECT_KEY=$repo_name" >> $GITHUB_ENV
+
+    - name: Sonar Scan with Java Option
+      if: env.java == 'true'
+      uses: sonarsource/sonarqube-scan-action@v5.0.0
+      env:
+        SONAR_TOKEN: ${{ secrets.MUFIN_SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ vars.MUFIN_SONAR_HOST_URL }}
+      with:
+        projectBaseDir: ${{ env.project_base_dir }}
+        args: >
+          -Dsonar.projectKey=$SONAR_PROJECT_KEY
+          -Dsonar.sources=${{ env.sonar_source }}
+          -Dsonar.tests=${{ env.tests }}
+          -Dsonar.test.exclusions=${{ env.test_exclusions }}
+          -Dsonar.test.inclusions=${{ env.test_inclusions }}
+          -Dsonar.java.binaries=.
+          -Dsonar.exclusions=**/*dependency-check*,**/*html,**/*css,**/**plugin**,**/**theme**,${{
+          env.source_exclusions }}
+          -Dsonar.inclusions=${{ env.source_inclusions }}
+          -Dsonar.qualitygate.wait=${{ vars.MUFIN_SONAR_QUALITY_CHECK }}
+          -Dsonar.c.file.suffixes=-
+          -Dsonar.cpp.file.suffixes=-
+          -Dsonar.objc.file.suffixes=-
+
+    - name: Sonar Scan
+      if: env.java == 'false'
+      uses: sonarsource/sonarqube-scan-action@v5.0.0
+      env:
+        SONAR_TOKEN: ${{ secrets.MUFIN_SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ vars.MUFIN_SONAR_HOST_URL }}
+      with:
+        projectBaseDir: ${{ env.project_base_dir }}
+        args: >
+          -Dsonar.projectKey=$SONAR_PROJECT_KEY
+          -Dsonar.sources=${{ env.sonar_source }}
+          -Dsonar.tests=${{ env.tests }}
+          -Dsonar.test.exclusions=${{ env.test_exclusions }}
+          -Dsonar.test.inclusions=${{ env.test_inclusions }}
+          -Dsonar.exclusions=**/*dependency-check*,**/*html,**/*css,**/**plugin**,**/**theme**,${{
+          env.source_exclusions }}
+          -Dsonar.inclusions=${{ env.source_inclusions }}
+          -Dsonar.qualitygate.wait=${{ vars.MUFIN_SONAR_QUALITY_CHECK }}
+          -Dsonar.c.file.suffixes=-
+          -Dsonar.cpp.file.suffixes=-
+          -Dsonar.objc.file.suffixes=-
