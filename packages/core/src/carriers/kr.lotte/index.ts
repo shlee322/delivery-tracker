@@ -31,6 +31,7 @@ class LotteGlobalLogistics extends Carrier {
 
 class LotteGlobalLogisticsTrackScraper {
   private readonly logger: Logger;
+  private readonly carrierSpecificDataPrefix = "kr.lotte";
 
   constructor(
     readonly upstreamFetcher: CarrierUpstreamFetcher,
@@ -79,6 +80,13 @@ class LotteGlobalLogisticsTrackScraper {
       events.push(this.parseEvent(event));
     }
 
+    // If a "Delivered" event is missing but can be inferred, infer and add the event
+    // Example: Only "인수자등록" (tracking.GODS_STAT_CD == 45) exists, and "배달완료" (tracking.GODS_STAT_CD == 41) is missing
+    const inferredDeliveredEvent = this.inferDeliveredEvent(events);
+    if (inferredDeliveredEvent !== null) {
+      events.push(inferredDeliveredEvent);
+    }
+
     return {
       events,
       sender: {
@@ -106,7 +114,12 @@ class LotteGlobalLogisticsTrackScraper {
       status: {
         code: this.parseStatusCode(tracking.GODS_STAT_CD),
         name: tracking.GODS_STAT_NM ?? null,
-        carrierSpecificData: new Map(),
+        carrierSpecificData: new Map([
+          [
+            `${this.carrierSpecificDataPrefix}/raw/GODS_STAT_CD`,
+            tracking.GODS_STAT_CD,
+          ],
+        ]),
       },
       time: this.parseTime(tracking.SCAN_YMD, tracking.SCAN_TME),
       location: this.parseLocation(tracking.BRNSHP_NM),
@@ -180,6 +193,40 @@ class LotteGlobalLogisticsTrackScraper {
       name: location,
       countryCode: "KR",
       postalCode: null,
+      carrierSpecificData: new Map(),
+    };
+  }
+
+  private inferDeliveredEvent(events: TrackEvent[]): TrackEvent | null {
+    let recipientRegisteredEvent: TrackEvent | null = null;
+
+    for (const event of events) {
+      if (event.status.code === TrackEventStatusCode.Delivered) {
+        return null;
+      }
+
+      const statCode = event.status.carrierSpecificData.get(
+        `${this.carrierSpecificDataPrefix}/raw/GODS_STAT_CD`
+      );
+      if (statCode === "45") {
+        recipientRegisteredEvent = event;
+      }
+    }
+
+    if (recipientRegisteredEvent === null) {
+      return null;
+    }
+
+    return {
+      status: {
+        code: TrackEventStatusCode.Delivered,
+        name: "배달 완료",
+        carrierSpecificData: new Map(),
+      },
+      time: recipientRegisteredEvent.time,
+      location: recipientRegisteredEvent.location,
+      contact: recipientRegisteredEvent.contact,
+      description: "배달 완료 (인수자등록)",
       carrierSpecificData: new Map(),
     };
   }
