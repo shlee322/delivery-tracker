@@ -160,18 +160,26 @@ class KyungdongExpressTrackScraper {
   }
 
   private parseTime(time: string): DateTime | null {
-    const result = DateTime.fromFormat(time, "yyyy-MM-dd HH:mm:ss.u", {
+    let result = DateTime.fromFormat(time, "yyyy-MM-dd HH:mm:ss.u", {
       zone: "Asia/Seoul",
     });
 
-    if (!result.isValid) {
-      this.logger.warn("time parse error", {
-        inputTime: time,
-        invalidReason: result.invalidReason,
-      });
+    if (result.isValid) {
       return result;
     }
 
+    result = DateTime.fromFormat(time, "yyyy-MM-dd HH:mm:ss", {
+      zone: "Asia/Seoul",
+    });
+
+    if (result.isValid) {
+      return result;
+    }
+
+    this.logger.warn("time parse error", {
+      inputTime: time,
+      invalidReason: result.invalidReason,
+    });
     return result;
   }
 }
