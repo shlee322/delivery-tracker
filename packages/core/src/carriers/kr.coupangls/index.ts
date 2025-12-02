@@ -55,7 +55,7 @@ class CoupangLogisticsServicesScraper {
 
     if (eventTrs.length === 0) {
       const message = document.querySelector(".modal-body")?.textContent?.replace(/\s+/g, " ")?.trim() ?? null;
-      if (message?.includes("운송장 미등록") === true) {
+      if (message?.includes("운송장 미등록") === true || message?.includes("waybill is not registered") === true) {
         throw new NotFoundError(message);
       } else {
         throw new InternalError(message ?? undefined);
