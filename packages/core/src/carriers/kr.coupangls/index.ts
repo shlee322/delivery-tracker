@@ -1,4 +1,6 @@
 import { type Logger } from "winston";
+import { DateTime } from "luxon";
+import { JSDOM } from "jsdom";
 import {
   Carrier,
   type CarrierTrackInput,
@@ -8,7 +10,6 @@ import {
 } from "../../core";
 import { rootLogger } from "../../logger";
 import { InternalError, NotFoundError } from "../../core/errors";
-import { DateTime } from "luxon";
 import { type CarrierUpstreamFetcher } from "../../carrier-upstream-fetcher/CarrierUpstreamFetcher";
 
 const carrierLogger = rootLogger.child({
@@ -38,29 +39,32 @@ class CoupangLogisticsServicesScraper {
 
   public async track(): Promise<TrackInfo> {
     const invoiceResponse = await this.upstreamFetcher.fetch(
-      `https://www.coupangls.com/web/api/invoice/${encodeURIComponent(
+      `https://www.coupangls.com/web/modal/invoice/${encodeURIComponent(
         this.trackingNumber
       )}`
     );
-
-    const invoiceResponseBody = await invoiceResponse.json();
-    this.logger.debug("invoiceResponseBody", {
-      invoiceResponseBody,
+    const invoiceResponseHtmlText = await invoiceResponse.text();
+    this.logger.debug("invoiceResponseHtmlText", {
+      html: invoiceResponseHtmlText,
     });
 
-    if (invoiceResponseBody.message !== "SUCCESS") {
-      throw new InternalError();
-    }
+    const dom = new JSDOM(invoiceResponseHtmlText);
+    const { document } = dom.window;
 
-    if (invoiceResponseBody.data === null) {
-      throw new NotFoundError(
-        "운송장 미등록 상태이거나 업체에서 상품을 준비중입니다."
-      );
+    const eventTrs = document.querySelectorAll(".tracking-detail > table > tbody > tr");
+
+    if (eventTrs.length === 0) {
+      const message = document.querySelector(".modal-body")?.textContent?.replace(/\s+/g, " ")?.trim() ?? null;
+      if (message?.includes("운송장 미등록") === true) {
+        throw new NotFoundError(message);
+      } else {
+        throw new InternalError(message ?? undefined);
+      }
     }
 
     const events: TrackEvent[] = [];
-    for (const trackedInfo of invoiceResponseBody.data.trackedInfoList) {
-      events.push(this.parseEvent(trackedInfo));
+    for (const eventTr of eventTrs) {
+      events.push(this.parseEvent(eventTr));
     }
 
     return {
@@ -72,7 +76,7 @@ class CoupangLogisticsServicesScraper {
         carrierSpecificData: new Map(),
       },
       recipient: {
-        name: invoiceResponseBody.data.recipientName ?? null,
+        name: document.querySelector(".recipient > div")?.textContent?.replace(/ 님$/, "") ?? null,
         location: null,
         phoneNumber: null,
         carrierSpecificData: new Map(),
@@ -81,17 +85,23 @@ class CoupangLogisticsServicesScraper {
     };
   }
 
-  private parseEvent(trackedInfo: any): TrackEvent {
+  private parseEvent(eventTr: Element): TrackEvent {
+    const tds = eventTr.querySelectorAll("td");
+
+    const timeText = tds[0].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
+    const locationText = tds[1].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
+    const statusText = tds[2].textContent?.replace(/\s+/g, " ")?.trim() ?? null;
+
     return {
       status: {
-        code: this.parseStatusCode(trackedInfo.trackedStatusName),
-        name: trackedInfo.trackedStatusName ?? null,
+        code: this.parseStatusCode(statusText),
+        name: statusText,
         carrierSpecificData: new Map(),
       },
-      time: this.parseTime(trackedInfo.trackedDateStr),
+      time: this.parseTime(timeText),
       location: null,
       contact: null,
-      description: this.parseDescription(trackedInfo),
+      description: `${statusText ?? ""} - ${locationText ?? ""}`,
       carrierSpecificData: new Map(),
     };
   }
@@ -107,6 +117,8 @@ class CoupangLogisticsServicesScraper {
       case "공항도착":
       case "통관완료":
       case "택배접수":
+      case "센터상차":
+      case "센터도착":
       case "집하":
       case "캠프상차":
       case "소터분류":
@@ -125,7 +137,14 @@ class CoupangLogisticsServicesScraper {
     return TrackEventStatusCode.Unknown;
   }
 
-  private parseTime(time: string): DateTime | null {
+  private parseTime(time: string | null): DateTime | null {
+    if (time === null) {
+      this.logger.warn("time parse error", {
+        inputTime: time,
+      });
+      return null;
+    }
+
     const result = DateTime.fromFormat(time, "yyyy-MM-dd HH:mm:ss", {
       zone: "Asia/Seoul",
     });
@@ -139,15 +158,6 @@ class CoupangLogisticsServicesScraper {
     }
 
     return result;
-  }
-
-  private parseDescription(event: any): string | null {
-    try {
-      return `${event.trackedStatusName} - ${event.trackedWorkspaceName}`;
-    } catch (err) {
-      this.logger.error("description parse error", { err });
-      return null;
-    }
   }
 }
 
