@@ -137,6 +137,7 @@ class YamatoTrackScraper {
       case "輸送中": // In Transit
         return TrackEventStatusCode.InTransit;
       case "配達完了": // Delivered
+      case "配達完了（宅配ボックス）": // Delivered (in delivery box)
         return TrackEventStatusCode.Delivered;
     }
 
