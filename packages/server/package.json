@@ -11,7 +11,7 @@
     "dev": "node-dev src/index.ts"
   },
   "dependencies": {
-    "@apollo/server": "^4.7.0",
+    "@apollo/server": "^5.4.0",
     "@delivery-tracker/api": "workspace:*",
     "@delivery-tracker/core": "workspace:*",
     "luxon": "^3.4.0",
