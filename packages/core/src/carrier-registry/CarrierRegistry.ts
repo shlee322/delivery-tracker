@@ -1,8 +1,8 @@
 import { type Carrier } from "../core/interfaces";
 
-interface CarrierRegistry {
-  get: (carrierId: string) => Carrier | null;
-  get carriers(): Carrier[];
+interface CarrierRegistry<T extends Carrier = Carrier> {
+  get: (carrierId: string) => T | null;
+  get carriers(): T[];
 }
 
 export { type CarrierRegistry };
