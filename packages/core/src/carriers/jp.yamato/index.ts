@@ -127,24 +127,13 @@ class YamatoTrackScraper {
   }
 
   private parseStatusCode(text: string | null): TrackEventStatusCode {
-    switch (text) {
-      case "出荷指示": // Indication for shipment
-        return TrackEventStatusCode.InformationReceived;
-      case "荷物受付": // Shipment Accepted
-        return TrackEventStatusCode.AtPickup;
-      case "発送済み": // Shipped Out
-        return TrackEventStatusCode.InTransit;
-      case "輸送中": // In Transit
-        return TrackEventStatusCode.InTransit;
-      case "配達完了": // Delivered
-      case "配達完了（宅配ボックス）": // Delivered (in delivery box)
-        return TrackEventStatusCode.Delivered;
+    const code = mapYamatoStatus(text);
+    if (code === TrackEventStatusCode.Unknown) {
+      this.logger.warn("Unexpected status code", {
+        text,
+      });
     }
-
-    this.logger.warn("Unexpected status code", {
-      text,
-    });
-    return TrackEventStatusCode.Unknown;
+    return code;
   }
 
   private parseTime(time: string | null): DateTime | null {
@@ -179,4 +168,52 @@ class YamatoTrackScraper {
   }
 }
 
-export { Yamato };
+function mapYamatoStatus(text: string | null): TrackEventStatusCode {
+  switch (text) {
+    case "出荷指示": // Indication for shipment
+      return TrackEventStatusCode.InformationReceived;
+    case "荷物受付": // Shipment Accepted
+      return TrackEventStatusCode.AtPickup;
+    case "発送済み": // Shipped Out
+    case "輸送中": // In Transit
+    case "作業店通過": // Passed through a branch
+    case "輸送経路修正": // Route corrected
+    case "配達店到着": // Arrived at the delivering branch
+    case "配達予定": // Scheduled for delivery
+    case "転送": // Forwarded
+      return TrackEventStatusCode.InTransit;
+    case "配達中": // Out for delivery
+    case "投函予定": // Scheduled to be put in the mailbox
+      return TrackEventStatusCode.OutForDelivery;
+    case "お客様引渡完了": // Handed over to the customer (at store)
+      return TrackEventStatusCode.Delivered;
+    case "保管中（ご指定店）": // Held at the designated store
+    case "配達担当店保管中": // Held at the delivering branch
+    case "ご来店予定": // Customer will pick it up at the store
+      return TrackEventStatusCode.AvailableForPickup;
+    case "調査中": // Under investigation
+    case "返品": // Returned to sender
+      return TrackEventStatusCode.Exception;
+  }
+  const status = text ?? "";
+  if (status.startsWith("配達完了") || status.startsWith("投函完了")) {
+    // 配達完了 / 配達完了（宅配ボックス） / 投函完了 (put in the mailbox)
+    return TrackEventStatusCode.Delivered;
+  }
+  if (status.startsWith("持戻")) {
+    // Brought back, e.g. 持戻（ご不在） / 持戻（ポスト投函不可）
+    return TrackEventStatusCode.AttemptFail;
+  }
+  if (
+    status.startsWith("依頼受付") ||
+    status.startsWith("配達日・時間帯指定") ||
+    status.startsWith("日・時間帯変更")
+  ) {
+    // Requests from the recipient, e.g. 依頼受付（再配達） / 配達日・時間帯指定（保管中）
+    return TrackEventStatusCode.InTransit;
+  }
+
+  return TrackEventStatusCode.Unknown;
+}
+
+export { Yamato, mapYamatoStatus };
